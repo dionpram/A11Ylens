@@ -19,14 +19,23 @@ function isPublicIPv4(ip: string): boolean {
   return a >= 1 && a <= 223;
 }
 
-function isPublicIP(ip: string): boolean {
-  if (isIP(ip) === 4) return isPublicIPv4(ip);
+// Permit only native IPv6 global unicast, not transition or tunneled networks.
+function isPublicIPv6(ip: string): boolean {
   if (isIP(ip) !== 6) return false;
-  // Intentionally conservative: only IPv6 global unicast 2000::/3 is allowed.
-  const normalized = ip.toLowerCase();
-  if (normalized.includes(".")) return false; // mapped IPv4 and hybrid forms
-  if (/^2001:db8(?::|$)/.test(normalized)) return false; // documentation range
-  return /^[23][0-9a-f]{3}:/.test(normalized);
+  const address = ip.toLowerCase();
+  if (address.includes(".")) return false; // IPv4-mapped and hybrid forms
+  const [firstText, secondText] = address.split(":");
+  const first = Number.parseInt(firstText, 16);
+  const second = Number.parseInt(secondText || "0", 16);
+  if (!Number.isFinite(first) || first < 0x2000 || first > 0x3fff) return false;
+  if (first === 0x2002) return false; // 6to4 can encapsulate private IPv4
+  if (first === 0x2001 && (second === 0 || second === 0xdb8)) return false; // Teredo / docs
+  return true;
+}
+
+export function isPublicAddress(ip: string): boolean {
+  if (isIP(ip) === 4) return isPublicIPv4(ip);
+  return isPublicIPv6(ip);
 }
 
 export async function validatePublicUrl(raw: string): Promise<string> {
@@ -41,7 +50,7 @@ export async function validatePublicUrl(raw: string): Promise<string> {
   if (blockedHost.test(url.hostname)) throw new Error("Private or local addresses can't be scanned.");
   if (!url.hostname || url.hostname.endsWith(".")) throw new Error("Enter a public website address.");
   const resolved = await lookup(url.hostname, { all: true, verbatim: true });
-  if (!resolved.length || resolved.some(({ address }) => !isPublicIP(address))) {
+  if (!resolved.length || resolved.some(({ address }) => !isPublicAddress(address))) {
     throw new Error("This host resolves to a restricted or non-public IP address.");
   }
   return url.toString();

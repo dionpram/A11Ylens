@@ -144,9 +144,17 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       serviceWorkers: "block",
       acceptDownloads: false,
     });
+    // Cap intercepted requests to avoid unbounded work from an untrusted page.
+    // This does not replace container-level CPU, RAM, network and time limits.
+    let requestCount = 0;
+    const MAX_BROWSER_REQUESTS = 180;
     await context.route("**/*", async route => {
       const candidate = route.request().url();
-      if (!/^https?:/i.test(candidate)) { await route.abort(); return; }
+      requestCount++;
+      if (requestCount > MAX_BROWSER_REQUESTS || !/^https?:/i.test(candidate)) {
+        await route.abort().catch(() => {});
+        return;
+      }
       try {
         await validatePublicUrl(candidate);
         await route.continue();
