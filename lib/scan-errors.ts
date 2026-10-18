@@ -5,9 +5,11 @@
 export type ScanStep = "VALIDATE_URL" | "CONNECT_BROWSER" | "CREATE_CONTEXT" | "INTERCEPT_REQUESTS" | "NAVIGATE_PAGE" | "RUN_AXE" | "BUILD_PREVIEW" | "FORMAT_REPORT";
 
 export class ScanStepError extends Error {
-  constructor(public readonly step: ScanStep) {
+  readonly step: ScanStep;
+  constructor(step: ScanStep) {
     super("The scanner could not complete the " + step.toLowerCase().replaceAll("_", " ") + " stage.");
     this.name = "ScanStepError";
+    this.step = step;
   }
 }
 
