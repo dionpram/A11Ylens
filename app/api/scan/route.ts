@@ -77,6 +77,12 @@ export async function POST(request: Request) {
       return Response.json(report, { headers: noStore });
     } catch (error) {
       const message = error instanceof Error ? error.message : "The remote accessibility audit failed.";
+      if (message.startsWith("Google is rate-limiting")) {
+        return Response.json(
+          { error: "Google is limiting requests from our shared preview. This page has not been scanned yet. You can try Google PageSpeed Insights directly or return later.", code: "GOOGLE_RATE_LIMIT" },
+          { status: 429, headers: { ...noStore, "Retry-After": "300" } },
+        );
+      }
       return fail(message.slice(0, 260), 503);
     }
   }

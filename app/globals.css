@@ -43,3 +43,5 @@
 .scan-failure .scan-failure-hint { color: #715e56; font-size: 0.83rem; }
 .scan-failure-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
 .scan-failure-actions .sample-link { margin: 0; }
+
+.scan-failure-actions .button { text-decoration: none; min-height: 44px; white-space: normal; text-align:center; }
