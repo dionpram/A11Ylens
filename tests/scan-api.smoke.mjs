@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { setTimeout as delay } from "node:timers/promises";
 
 const port = 34721;
-const child = spawn("npm", ["run", "start", "--", "--port", String(port)], {
+const child = spawn(process.execPath, ["node_modules/next/dist/bin/next", "start", "--port", String(port)], {
   cwd: new URL("../", import.meta.url),
   env: {
     ...process.env,
