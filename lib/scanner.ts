@@ -147,11 +147,13 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     // Cap intercepted requests to avoid unbounded work from an untrusted page.
     // This does not replace container-level CPU, RAM, network and time limits.
     let requestCount = 0;
+    let requestLimitHit = false;
     const MAX_BROWSER_REQUESTS = 180;
     await context.route("**/*", async route => {
       const candidate = route.request().url();
       requestCount++;
-      if (requestCount > MAX_BROWSER_REQUESTS || !/^https?:/i.test(candidate)) {
+      if (requestCount > MAX_BROWSER_REQUESTS) requestLimitHit = true;
+      if (requestLimitHit || !/^https?:/i.test(candidate)) {
         await route.abort().catch(() => {});
         return;
       }
@@ -168,6 +170,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 22000 });
     if (!response || !response.ok()) throw new Error(`The page returned HTTP ${response?.status() ?? "unknown"}.`);
     await page.waitForTimeout(700);
+    if (requestLimitHit) throw new Error("The page requested too many resources to scan reliably.");
     const finalUrl = await validatePublicUrl(page.url());
     const result = await new AxeBuilder({ page }).analyze();
     const failures = result.violations.map(rule => formatRule(rule, true));
@@ -181,6 +184,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     const fullyPassedRules = passes.filter(rule => !rule.partiallyPassing).length;
     const denominator = fullyPassedRules + failures.length;
     const preview = await makeContrastPreview(page, result.violations);
+    if (requestLimitHit) throw new Error("The page requested too many resources to scan reliably.");
 
     return {
       id: randomUUID(),
