@@ -111,7 +111,10 @@ export function mapPageSpeedReport(payload: unknown, inputUrl: string, durationM
     }
   }
   const finalUrl = result.finalUrl || p.id || inputUrl;
-  let pageTitle = new URL(finalUrl).hostname;
+  // Provider-controlled canonical IDs are not guaranteed to be full URLs.
+  let pageTitle: string;
+  try { pageTitle = new URL(finalUrl).hostname; }
+  catch { pageTitle = new URL(inputUrl).hostname; }
   const titleAudit = result.audits["document-title"];
   if (titleAudit && typeof titleAudit.displayValue === "string") pageTitle = textValue(titleAudit.displayValue, 160) || pageTitle;
 
@@ -138,15 +141,22 @@ export function mapPageSpeedReport(payload: unknown, inputUrl: string, durationM
   };
 }
 
+/** Build only a trusted Google API URL, never a client-controlled API endpoint. */
+export function buildPageSpeedRequest(targetUrl: string, apiKey?: string): URL {
+  const endpoint = new URL("https://www.googleapis.com/pagespeedonline/v5/runPagespeed");
+  endpoint.searchParams.set("url", targetUrl);
+  // Use the documented lowercase API parameter values.
+  endpoint.searchParams.set("category", "accessibility");
+  endpoint.searchParams.set("strategy", "desktop");
+  endpoint.searchParams.set("fields", "id,analysisUTCTimestamp,lighthouseResult(fetchTime,finalUrl,lighthouseVersion,userAgent,runWarnings,runtimeError,audits,categories(accessibility))");
+  if (apiKey?.trim()) endpoint.searchParams.set("key", apiKey.trim());
+  return endpoint;
+}
+
 export async function scanWithPageSpeed(inputUrl: string): Promise<ScanReport> {
   // Validate first, even though this application never connects to the target URL.
   const url = await validatePublicUrl(inputUrl);
-  const endpoint = new URL("https://www.googleapis.com/pagespeedonline/v5/runPagespeed");
-  endpoint.searchParams.set("url", url);
-  endpoint.searchParams.set("category", "ACCESSIBILITY");
-  endpoint.searchParams.set("strategy", "DESKTOP");
-  endpoint.searchParams.set("fields", "id,analysisUTCTimestamp,lighthouseResult(fetchTime,finalUrl,lighthouseVersion,userAgent,runWarnings,runtimeError,audits,categories(accessibility))");
-  if (process.env.PAGESPEED_API_KEY?.trim()) endpoint.searchParams.set("key", process.env.PAGESPEED_API_KEY.trim());
+  const endpoint = buildPageSpeedRequest(url, process.env.PAGESPEED_API_KEY);
   const started = Date.now();
   let response: Response;
   try {
@@ -158,8 +168,10 @@ export async function scanWithPageSpeed(inputUrl: string): Promise<ScanReport> {
   } catch {
     throw new Error("Google's accessibility scan timed out or could not be reached. Please try again.");
   }
-  if (response.status === 429) throw new Error("Google's accessibility scan is currently rate-limited. Please try later.");
-  if (response.status === 403) throw new Error("Google did not authorize this scan. A PageSpeed API key may be required.");
+  if (response.status === 429) throw new Error("Google is rate-limiting accessibility checks right now. Please try again later.");
+  if (response.status === 401 || response.status === 403) throw new Error("Google has declined this scan request. A PageSpeed API key may be needed.");
+  if (response.status === 400) throw new Error("Google could not process the submitted URL. Try the site's public homepage, including https://.");
+  if (response.status >= 500) throw new Error("Google's scan service is temporarily unavailable. Try again shortly.");
   if (!response.ok) throw new Error("Google could not analyze this page right now. Please try another public URL.");
   const data = await readLimitedJson(response, 8_000_000);
   return mapPageSpeedReport(data, url, Date.now() - started);

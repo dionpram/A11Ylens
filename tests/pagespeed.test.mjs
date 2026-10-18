@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mapPageSpeedReport } from "../lib/pagespeed.ts";
+import { buildPageSpeedRequest, mapPageSpeedReport } from "../lib/pagespeed.ts";
 
 const payload = {
   id: "https://example.com/",
@@ -49,4 +49,14 @@ test("rejects missing and incomplete provider audits rather than fabricating suc
   assert.throws(() => mapPageSpeedReport({}, "https://example.com/"), /no accessibility audit/);
   assert.throws(() => mapPageSpeedReport({ lighthouseResult: { runtimeError: { message: "failed" }, categories: { accessibility: { score: 1 } }, audits: {} } }, "https://example.com/"), /could not complete/);
   assert.throws(() => mapPageSpeedReport({ lighthouseResult: { categories: { accessibility: { score: null } }, audits: {} } }, "https://example.com/"), /complete accessibility score/);
+});
+
+test("creates a correctly encoded Google request with documented lowercase values", () => {
+  const url = buildPageSpeedRequest("https://pramadion.com/?topic=design&lang=en");
+  assert.equal(url.hostname, "www.googleapis.com");
+  assert.equal(url.pathname, "/pagespeedonline/v5/runPagespeed");
+  assert.equal(url.searchParams.get("url"), "https://pramadion.com/?topic=design&lang=en");
+  assert.equal(url.searchParams.get("category"), "accessibility");
+  assert.equal(url.searchParams.get("strategy"), "desktop");
+  assert.ok(!url.searchParams.has("key"));
 });
