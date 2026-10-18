@@ -134,10 +134,23 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
   const url = await validatePublicUrl(inputUrl);
   let browser: Browser | undefined;
   try {
-    browser = await chromium.launch({
-      headless: true,
-      ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
-    });
+    if (process.env.MANAGED_BROWSER_ENABLED === "true") {
+      // Browserless supplies Chromium only. axe-core, rule evaluation,
+      // visual fixes and output format remain under A11Ylens's control.
+      // Never log this URL; it contains the server-only provider credential.
+      const { browserlessEndpoint } = await import("./browserless");
+      const endpoint = browserlessEndpoint(process.env.BROWSERLESS_TOKEN);
+      try {
+        browser = await chromium.connectOverCDP(endpoint, { timeout: 12000 });
+      } catch {
+        throw new Error("The managed browser could not start. Please try again later.");
+      }
+    } else {
+      browser = await chromium.launch({
+        headless: true,
+        ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
+      });
+    }
     const context = await browser.newContext({
       viewport: { width: 1365, height: 900 },
       deviceScaleFactor: 1,

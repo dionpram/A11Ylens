@@ -128,3 +128,7 @@ See [Deployment guide](docs/DEPLOYMENT.md) for environment variables, testing an
 
 ### Optional remote Lighthouse engine (no self-hosted Chromium)
 The app can optionally use Google PageSpeed Insights API for URL-based automated accessibility scans. Set `PAGESPEED_API_ENABLED=true` and optionally `PAGESPEED_API_KEY` (server-only) on the frontend after reviewing API quotas, privacy disclosure and public rate limiting. Score and findings are from Google Lighthouse; site-specific visual before/after recommendations remain reserved for the isolated Chromium worker. Production remains disabled by default. See `docs/DEPLOYMENT.md`.
+
+
+### Managed Chromium beta (no Google PageSpeed dependency)
+`remote-browser-beta` supports a **protected, allowlisted preview** using Browserless to supply Chromium while A11Ylens itself runs Playwright, axe-core and visual-contrast fixes. In Vercel, configure preview-only `MANAGED_BROWSER_ENABLED=true`, `BROWSERLESS_TOKEN` (private server variable), and `SCAN_BETA_ALLOWED_HOSTS=pramadion.com,www.pramadion.com,example.com`. Without the token, production stays disabled. This requires a Browserless account and uses that provider's browser-session quotas. This is a temporary path to demonstrate real scans, not an unrestricted public scanning deployment. See `docs/MANAGED-BROWSER-BETA.md`.
