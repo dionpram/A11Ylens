@@ -68,3 +68,11 @@ Development defaults to in-process scanning for controlled use. For the integrat
 - [ ] Import the actual exported Google Stitch design while retaining the scan API contract.
 
 No hosting account, domain, secrets or firewall is configured automatically by this repository change. It is infrastructure-ready code, **not a live deployment**.
+
+## Alternative MVP engine: Google PageSpeed Insights
+
+For a lower-infrastructure preview, set `PAGESPEED_API_ENABLED=true` on the Next.js frontend **only after confirming abuse limits and privacy disclosures**. This changes the scan handler to call Google's official PageSpeed Insights API using a server-side request to the fixed Google endpoint. A `PAGESPEED_API_KEY` is optional for limited use, but recommended for frequent automated requests. Both values must be server-only.
+
+The results use Google's Lighthouse weighted accessibility score, and show failing, passing, manual, and not-applicable audits. They do **not** provide site-specific before/after screenshots; that requires the separately isolated Chromium worker. PageSpeed quotas, errors and rate limits apply, and submitted URLs are transferred to Google. The default production mode remains disabled until explicitly enabled.
+
+When a worker is eventually configured, the worker mode takes precedence. Never enable both remote Lighthouse and worker integrations without checking the intended priority.

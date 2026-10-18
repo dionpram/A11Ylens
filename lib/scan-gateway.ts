@@ -5,11 +5,12 @@ import { createHash, timingSafeEqual } from "node:crypto";
  * a publicly exposed Next.js frontend. The worker must be isolated at the
  * network/container layer; application checks alone cannot stop SSRF.
  */
-export type ScanMode = "proxy" | "worker" | "development" | "disabled";
+export type ScanMode = "proxy" | "worker" | "pagespeed" | "development" | "disabled";
 
 export function scanMode(env: NodeJS.ProcessEnv = process.env): ScanMode {
   if (env.SCAN_WORKER_URL?.trim()) return "proxy";
   if (env.SCAN_WORKER_ENABLED === "true" && env.SCAN_WORKER_TOKEN?.trim()) return "worker";
+  if (env.PAGESPEED_API_ENABLED === "true") return "pagespeed";
   if (env.NODE_ENV !== "production" && env.SCAN_WORKER_ENABLED !== "true") return "development";
   return "disabled";
 }

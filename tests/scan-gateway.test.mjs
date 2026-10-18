@@ -10,6 +10,8 @@ test('scans are disabled in production until a worker is explicitly configured',
   assert.equal(scanMode({ NODE_ENV: 'production', SCAN_WORKER_ENABLED: 'true' }), 'disabled');
   assert.equal(scanMode({ NODE_ENV: 'production', SCAN_WORKER_ENABLED: 'true', SCAN_WORKER_TOKEN: token }), 'worker');
   assert.equal(scanMode({ NODE_ENV: 'production', SCAN_WORKER_URL: 'https://scanner.example', SCAN_WORKER_TOKEN: token }), 'proxy');
+  assert.equal(scanMode({ NODE_ENV: 'production', PAGESPEED_API_ENABLED: 'true' }), 'pagespeed');
+  assert.equal(scanMode({ NODE_ENV: 'production', PAGESPEED_API_ENABLED: 'true', SCAN_WORKER_URL: 'https://worker.example' }), 'proxy');
 });
 
 test('worker requires exact long shared token', () => {

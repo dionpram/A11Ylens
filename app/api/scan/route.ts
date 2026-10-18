@@ -1,4 +1,5 @@
 import { scanWebsite } from "@/lib/scanner";
+import { scanWithPageSpeed } from "@/lib/pagespeed";
 import { authenticateWorker, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
 
 export const runtime = "nodejs";
@@ -66,6 +67,18 @@ export async function POST(request: Request) {
       return Response.json(report, { headers: noStore });
     } catch {
       return fail("The scanning service is unavailable or returned an invalid report. Please try again later.", 502);
+    }
+  }
+
+  if (mode === "pagespeed") {
+    try {
+      // The backend contacts only Google's fixed HTTPS API endpoint.
+      // Google, not this application's browser, fetches the supplied URL.
+      const report = await scanWithPageSpeed(url);
+      return Response.json(report, { headers: noStore });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "The remote accessibility audit failed.";
+      return fail(message.slice(0, 260), 503);
     }
   }
 

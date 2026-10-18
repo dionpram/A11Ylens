@@ -34,7 +34,7 @@ function ScoreCard({ report }: { report: ScanReport }) {
       <div className="score-ring" style={{ "--score": `${report.score ?? 0}%` } as React.CSSProperties}>
         <div><strong>{report.score ?? "—"}</strong><span>/100</span></div>
       </div>
-      <div className="score-description"><span className="eyebrow">AUTOMATED RULE PASS RATE</span><h2>{report.score === null ? "Not enough checks" : report.score >= 90 ? "A good starting point" : report.score >= 70 ? "Room to improve" : "Some work to do"}</h2><p>This score summarizes tested axe rules, not total accessibility or legal compliance. Review the findings below for the details.</p></div>
+      <div className="score-description"><span className="eyebrow">{report.environment.engine.startsWith("Lighthouse") ? "LIGHTHOUSE ACCESSIBILITY SCORE" : "AUTOMATED RULE PASS RATE"}</span><h2>{report.score === null ? "Not enough checks" : report.score >= 90 ? "A good starting point" : report.score >= 70 ? "Room to improve" : "Some work to do"}</h2><p>This score summarizes tested axe rules, not total accessibility or legal compliance. Review the findings below for the details.</p></div>
     </div>
     <div className="metric-grid">
       <IconMetric icon={<CircleAlert size={19}/>} value={report.counts.failedRules} label="Failed rules" type="fail"/>
@@ -87,7 +87,7 @@ function PrintableReport({ report }: { report: ScanReport }) {
     <h1>Access Lens · Automated accessibility assessment</h1><p>{report.finalUrl}</p>
     <p>{new Date(report.scannedAt).toLocaleString()} · {report.environment.viewport} · {report.environment.engine}</p>
     {report.demo && <p><strong>DEMONSTRATION DATA · NOT AN ACTUAL SCAN</strong></p>}
-    <h2>Summary</h2><p>Automated rule pass rate: <strong>{report.score ?? "Not available"}/100</strong></p><p>{report.scoreMethod}</p>
+    <h2>Summary</h2><p>{report.environment.engine.startsWith("Lighthouse") ? "Lighthouse accessibility score" : "Automated rule pass rate"}: <strong>{report.score ?? "Not available"}/100</strong></p><p>{report.scoreMethod}</p>
     <p>{report.counts.failedRules} failed rules · {report.counts.passedRules} passed rules · {report.counts.reviewRules} review items · {report.counts.notApplicableRules} inapplicable rules</p>
     <h2>Detected failures</h2>{report.failures.map(r => <section key={r.id}><h3>{r.title} ({r.impact})</h3><p>{r.description}</p>{r.recommendation && <p><strong>Suggested next step:</strong> {r.recommendation}</p>}<p>Instances: {r.count} · {r.wcag.join(", ")}</p>{r.nodes?.map((n,i)=><div key={i}><code>{n.target}</code><p>{n.summary}</p></div>)}{report.previews.filter(v=>v.ruleId===r.id).map((p,i)=><div key={i}><h4>Visual suggestion</h4><div className="print-preview-grid"><div><p>Before · {p.beforeRatio}:1</p><img src={p.beforeImage} alt="Original element"/></div><div><p>After · {p.afterRatio}:1</p><img src={p.afterImage} alt="Suggested revision"/></div></div><pre>{p.css}</pre></div>)}</section>)}
     <h2>Passing automated rule instances</h2>{report.passes.map(r=><p key={r.id}><strong>{r.title}</strong> · {r.count} passing instances {r.partiallyPassing ? "(other elements failed the same rule)" : ""}</p>)}

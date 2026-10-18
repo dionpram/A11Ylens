@@ -124,3 +124,7 @@ The GitHub Actions workflow includes a controlled end-to-end smoke test of the r
 Production scanning is now intentionally disabled by default. The Next.js frontend proxies to an **authenticated, separately deployed Chromium worker** when `SCAN_WORKER_URL` and `SCAN_WORKER_TOKEN` are configured. The worker runs with `SCAN_WORKER_ENABLED=true` and the same long token. The included Dockerfile is a packaging starting point, **not a network sandbox**. The worker must be isolated with restrictive ingress/egress and persistent rate limiting before public scans.
 
 See [Deployment guide](docs/DEPLOYMENT.md) for environment variables, testing and the launch checklist. Without the worker configured, the production frontend still shows the homepage and sample report but returns a friendly unavailability message for real scans.
+
+
+### Optional remote Lighthouse engine (no self-hosted Chromium)
+The app can optionally use Google PageSpeed Insights API for URL-based automated accessibility scans. Set `PAGESPEED_API_ENABLED=true` and optionally `PAGESPEED_API_KEY` (server-only) on the frontend after reviewing API quotas, privacy disclosure and public rate limiting. Score and findings are from Google Lighthouse; site-specific visual before/after recommendations remain reserved for the isolated Chromium worker. Production remains disabled by default. See `docs/DEPLOYMENT.md`.
