@@ -8,7 +8,10 @@ import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 
 if (process.env.MANAGED_BROWSER_ENABLED !== "true") {
-  console.log("[managed-browser-smoke] skipped: managed-browser preview is disabled.");
+  if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_GIT_COMMIT_REF === "remote-browser-beta") {
+    throw new Error("[managed-browser-smoke] Managed browser beta not configured.");
+  }
+  console.log("[managed-browser-smoke] skipped outside managed-browser beta.");
 } else {
   if (process.env.VERCEL_ENV === "production") {
     throw new Error("[managed-browser-smoke] Refusing managed-browser scanning in production.");

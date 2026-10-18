@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:e2e": "node tests/scan.integration.mjs",
-    "postbuild": "node tests/managed-browser-smoke.check.mjs"
+    "postbuild": "node tests/managed-browser-smoke.check.mjs && node tests/scan-api.remote.check.mjs"
   },
   "engines": {
     "node": ">=22.0.0"
