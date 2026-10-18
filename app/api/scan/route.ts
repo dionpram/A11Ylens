@@ -1,5 +1,3 @@
-import { scanWebsite } from "@/lib/scanner";
-import { scanWithPageSpeed } from "@/lib/pagespeed";
 import { authenticateWorker, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
 
 export const runtime = "nodejs";
@@ -74,10 +72,17 @@ export async function POST(request: Request) {
     try {
       // The backend contacts only Google's fixed HTTPS API endpoint.
       // Google, not this application's browser, fetches the supplied URL.
+      const { scanWithPageSpeed } = await import("@/lib/pagespeed");
       const report = await scanWithPageSpeed(url);
       return Response.json(report, { headers: noStore });
     } catch (error) {
       const message = error instanceof Error ? error.message : "The remote accessibility audit failed.";
+      if (message.startsWith("Google is rate-limiting")) {
+        return Response.json(
+          { error: "Google is limiting requests from our shared preview. This page has not been scanned yet. You can try Google PageSpeed Insights directly or return later.", code: "GOOGLE_RATE_LIMIT" },
+          { status: 429, headers: { ...noStore, "Retry-After": "300" } },
+        );
+      }
       return fail(message.slice(0, 260), 503);
     }
   }
@@ -85,6 +90,8 @@ export async function POST(request: Request) {
   if (scanning) return fail("The scanner is busy. Please try again shortly.", 503);
   scanning = true;
   try {
+    // Load heavy browser modules only inside the isolated worker or local development.
+    const { scanWebsite } = await import("@/lib/scanner");
     const report = await scanWebsite(url);
     return Response.json(report, { headers: noStore });
   } catch (error) {

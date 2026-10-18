@@ -35,3 +35,13 @@
 .not-found-shell{max-width:650px;margin:0 auto;padding:125px 25px 155px;text-align:center;display:flex;flex-direction:column;align-items:center}.not-found-icon{height:72px;width:72px;border-radius:23px;background:#faeae3;color:#a64f3b;display:grid;place-items:center;margin-bottom:29px}.not-found-shell h1{font-size:clamp(38px,5vw,56px);line-height:1.1;letter-spacing:-.055em}.not-found-shell p{font-size:16px;color:#738177;margin:20px 0 28px}
 
 .recommended-action{background:#f4f7f0;border-left:3px solid #517e5d;padding:14px 16px;border-radius:8px;margin:14px 0 16px}.recommended-action strong{font-size:13px}.recommended-action p{font-size:13px;color:#556f5d;margin-top:5px}.partial-pass{font-size:11px;color:#7c6251;font-weight:600}
+
+/* Understandable, non-blocking scan failures */
+.scan-failure { margin-top: 18px; max-width: 610px; border: 1px solid #e6b9aa; background: #fff9f6; border-radius: 18px; padding: 20px; color: #402b24; box-shadow: 0 8px 26px rgba(70,35,20,0.06); }
+.scan-failure-head { display: flex; align-items: center; gap: 9px; color: #a23e2c; }
+.scan-failure p { margin: 10px 0 0; font-size: 0.94rem; line-height: 1.55; }
+.scan-failure .scan-failure-hint { color: #715e56; font-size: 0.83rem; }
+.scan-failure-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+.scan-failure-actions .sample-link { margin: 0; }
+
+.scan-failure-actions .button { text-decoration: none; min-height: 44px; white-space: normal; text-align:center; }
