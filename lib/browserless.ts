@@ -5,7 +5,7 @@
  */
 export function browserlessEndpoint(token: string | undefined): string {
   if (!token?.trim()) throw new Error("The managed browser is not configured.");
-  const endpoint = new URL("wss://production-ams.browserless.io");
+  const endpoint = new URL("wss://production-ams.browserless.io/chromium/playwright");
   endpoint.searchParams.set("token",token.trim());
   endpoint.searchParams.set("timeout","55000");
   return endpoint.toString();
