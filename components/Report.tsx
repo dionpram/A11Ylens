@@ -34,7 +34,7 @@ function ScoreCard({ report }: { report: ScanReport }) {
       <div className="score-ring" style={{ "--score": `${report.score ?? 0}%` } as React.CSSProperties}>
         <div><strong>{report.score ?? "—"}</strong><span>/100</span></div>
       </div>
-      <div className="score-description"><span className="eyebrow">{report.environment.engine.startsWith("Lighthouse") ? "LIGHTHOUSE ACCESSIBILITY SCORE" : "AUTOMATED RULE PASS RATE"}</span><h2>{report.score === null ? "Not enough checks" : report.score >= 90 ? "A good starting point" : report.score >= 70 ? "Room to improve" : "Some work to do"}</h2><p>This score summarizes tested axe rules, not total accessibility or legal compliance. Review the findings below for the details.</p></div>
+      <div className="score-description"><span className="eyebrow">{report.environment.engine.startsWith("Lighthouse") ? "LIGHTHOUSE ACCESSIBILITY SCORE" : "AUTOMATED RULE PASS RATE"}</span><h2>{report.score === null ? "Not enough checks" : report.score >= 90 ? "A good starting point" : report.score >= 70 ? "Room to improve" : "Some work to do"}</h2><p>{report.environment.engine.startsWith("Lighthouse") ? "This is Google's weighted Lighthouse accessibility score, not proof of WCAG compliance. Review the findings below for details." : "This score summarizes tested axe rules, not total accessibility or legal compliance. Review the findings below for the details."}</p></div>
     </div>
     <div className="metric-grid">
       <IconMetric icon={<CircleAlert size={19}/>} value={report.counts.failedRules} label="Failed rules" type="fail"/>
