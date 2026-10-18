@@ -45,3 +45,12 @@
 ## Definition of done for public MVP
 
 A user can submit a public URL, receive real verifiable findings and an accurately described score, explore at least one supported before/after contrast recommendation, get a complete PDF without payment, and submit a second page. Scanner must survive abusive input without reaching private network endpoints. All claims and recommendations must accurately describe test coverage.
+
+
+## Next production step (October 2026)
+
+- The proxy/worker split, long-token authentication, response-size cap, Dockerfile, and health endpoint are implemented in code.
+- **Not deployed:** frontend and worker require hosting connections, TLS and an explicit network egress policy.
+- **Still required for public access:** distributed abuse protection, resource budgeting, network-blocking verification, privacy/retention review, and real-site acceptance tests.
+- Google Stitch layout export has not been imported because the project-link alone does not grant source access. Preserve the current UI until actual exported assets are available.
+- See [Deployment guide](DEPLOYMENT.md).

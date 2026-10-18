@@ -117,3 +117,10 @@ above is completed.
 The visual layout can be replaced without changing the scanner API. See [Engine, API contract and Stitch handoff](docs/ENGINE.md) for the request/response format, how to connect an exported Stitch page, and required security hardening before launch.
 
 The GitHub Actions workflow includes a controlled end-to-end smoke test of the real browser scan after Chromium is installed; run it locally with `npm run test:e2e` after `npm install` and `npx playwright install chromium`.
+
+
+## Deployment architecture (preview)
+
+Production scanning is now intentionally disabled by default. The Next.js frontend proxies to an **authenticated, separately deployed Chromium worker** when `SCAN_WORKER_URL` and `SCAN_WORKER_TOKEN` are configured. The worker runs with `SCAN_WORKER_ENABLED=true` and the same long token. The included Dockerfile is a packaging starting point, **not a network sandbox**. The worker must be isolated with restrictive ingress/egress and persistent rate limiting before public scans.
+
+See [Deployment guide](docs/DEPLOYMENT.md) for environment variables, testing and the launch checklist. Without the worker configured, the production frontend still shows the homepage and sample report but returns a friendly unavailability message for real scans.

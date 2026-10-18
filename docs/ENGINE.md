@@ -71,12 +71,16 @@ setReport(data);
 ## Engine internals
 
 1. `lib/safety.ts` validates URL scheme, user info, ports, hostname and resolved IP addresses.
-2. `app/api/scan/route.ts` applies rudimentary single-process throttling; **not sufficient for a scaled public deployment**.
+2. `app/api/scan/route.ts` runs locally in development. In production it defaults to **disabled**, proxies to a separate HTTPS worker when `SCAN_WORKER_URL` and `SCAN_WORKER_TOKEN` are configured, or runs only in the explicit `SCAN_WORKER_ENABLED=true` protected worker mode. The gateway rejects unauthorized requests and caps proxy response sizes. In-process throttling is still only a development safeguard; **not sufficient for a scaled public deployment**.
 3. `lib/scanner.ts` opens a sandboxed *logical* browser context, intercepts URLs, renders one page, and invokes `@axe-core/playwright`.
 4. Results are organized by outcome; the score includes fully passing rules and failing rules, excluding inconclusive rules. Partially passing instances are still documented in `passes`.
 5. `lib/recommendations.ts` supplies honest next-step guidance. Detailed rule documentation and element failure summaries come from axe-core.
 6. For simple contrast failures, `lib/contrast.ts` calculates a candidate color. `lib/scanner.ts` takes original and temporary-patch screenshots, reruns the color-contrast check, and restores the original inline style. If it cannot do this reliably, no visual example is fabricated.
 7. `components/Report.tsx` renders findings and supports browser Print / Save as PDF. PDF export is not a digitally signed audit.
+
+## Deployment modes and security
+
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the Docker worker, environment variables, and recommended topology. The production frontend cannot execute scans directly without deliberate worker configuration. The `/api/health` route indicates configuration readiness, not worker safety.
 
 ## Before any public deployment — non-negotiable safeguards
 
@@ -86,7 +90,7 @@ Disable `ALLOW_LOCAL_SCANS` in production; it is only for controlled test fixtur
 
 ## Next milestones
 
-- Verify GitHub Actions build and `test:e2e` actually pass with installed Chromium.
+- Keep CI type checking, build, unit tests, and local browser fixture passing after every change.
 - Deploy the scanner in an isolated container with deny-by-default private-network egress and real time/resource limits.
 - Replace in-process throttling with Redis-backed rate limits and a job queue.
 - Allow users to test different page states and desktop/mobile viewports (still one URL at a time).
