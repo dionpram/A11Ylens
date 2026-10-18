@@ -28,6 +28,8 @@ jobs:
         run: npm run typecheck
       - name: Build web app
         run: npm run build
+      - name: Verify production API boot in PageSpeed mode
+        run: npm run test:api
       - name: Install Chromium for scanner smoke test
         run: npx playwright install --with-deps chromium
       - name: Verify real scan against controlled fixture
