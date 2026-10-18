@@ -1,4 +1,5 @@
 import { authenticateWorker, isAllowedBetaUrl, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
+import { safeScannerFailure } from "@/lib/scan-errors";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -95,18 +96,11 @@ export async function POST(request: Request) {
     const report = await scanWebsite(url);
     return Response.json(report, { headers: noStore });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "The scan could not be completed.";
-    // Never expose server paths, stack traces or transport URLs to visitors.
-    // In particular, managed browser connection URLs contain an API token.
     if (mode === "managed-browser") {
-      const startup = /browsers\.json|cannot find module|failed to load external module/i.test(message);
-      return Response.json({
-        error: startup
-          ? "The scanning engine could not initialize. Please try the latest preview or report this error."
-          : "The scanning service could not finish this page right now. Please try again shortly.",
-        code: startup ? "SCANNER_STARTUP_ERROR" : "SCANNER_RUNTIME_ERROR",
-      }, { status: 503, headers: noStore });
+      // Never serialize raw provider errors (including token-bearing WebSocket URLs).
+      return Response.json(safeScannerFailure(error), { status: 503, headers: noStore });
     }
+    const message = error instanceof Error ? error.message : "The scan could not be completed.";
     return fail(message.slice(0, 260), 400);
   } finally {
     scanning = false;

@@ -5,6 +5,7 @@ import type { ScanReport, Rule, ContrastPreview, Impact } from "./types";
 import { validatePublicUrl } from "./safety";
 import { contrast, findAccessibleColor, readRGB, toHex } from "./contrast";
 import { recommendationForRule } from "./recommendations";
+import { ScanStepError, type ScanStep } from "./scan-errors";
 
 type AxeRule = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
 const wcagTags = (tags: string[]) => tags.filter(t => /^wcag\d/.test(t));
@@ -131,9 +132,11 @@ async function makeContrastPreview(page: Page, violations: AxeRule[]): Promise<C
 
 export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
   const started = Date.now();
-  const url = await validatePublicUrl(inputUrl);
   let browser: Browser | undefined;
+  let step: ScanStep = "VALIDATE_URL";
   try {
+    const url = await validatePublicUrl(inputUrl);
+    step = "CONNECT_BROWSER";
     if (process.env.MANAGED_BROWSER_ENABLED === "true") {
       // Browserless supplies Chromium only. axe-core, rule evaluation,
       // visual fixes and output format remain under A11Ylens's control.
@@ -151,6 +154,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
         ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
       });
     }
+    step = "CREATE_CONTEXT";
     const context = await browser.newContext({
       viewport: { width: 1365, height: 900 },
       deviceScaleFactor: 1,
@@ -162,6 +166,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     let requestCount = 0;
     let requestLimitHit = false;
     const MAX_BROWSER_REQUESTS = 180;
+    step = "INTERCEPT_REQUESTS";
     await context.route("**/*", async route => {
       const candidate = route.request().url();
       requestCount++;
@@ -178,6 +183,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       }
     });
 
+    step = "NAVIGATE_PAGE";
     const page = await context.newPage();
     page.setDefaultTimeout(5000);
     const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 22000 });
@@ -185,6 +191,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     await page.waitForTimeout(700);
     if (requestLimitHit) throw new Error("The page requested too many resources to scan reliably.");
     const finalUrl = await validatePublicUrl(page.url());
+    step = "RUN_AXE";
     const result = await new AxeBuilder({ page }).analyze();
     const failures = result.violations.map(rule => formatRule(rule, true));
     const failedIds = new Set(failures.map(r => r.id));
@@ -196,9 +203,11 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     }));
     const fullyPassedRules = passes.filter(rule => !rule.partiallyPassing).length;
     const denominator = fullyPassedRules + failures.length;
+    step = "BUILD_PREVIEW";
     const preview = await makeContrastPreview(page, result.violations);
     if (requestLimitHit) throw new Error("The page requested too many resources to scan reliably.");
 
+    step = "FORMAT_REPORT";
     return {
       id: randomUUID(),
       inputUrl: url,
@@ -226,6 +235,10 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
         "A contrast preview is proposed CSS, not a modification to the original website. Verify all component states, overlays, and brand constraints before implementation.",
       ],
     };
+  } catch {
+    // Keep provider URLs, credentials and internals on the server only.
+    // The API can tell the client which step failed without exposing secrets.
+    throw new ScanStepError(step);
   } finally {
     if (browser) await browser.close().catch(() => {});
   }
