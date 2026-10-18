@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { validatePublicUrl } from "./safety";
-import { recommendationForRule } from "./recommendations";
-import { readLimitedJson } from "./scan-gateway";
+import { validatePublicUrl } from "./safety.ts";
+import { recommendationForRule } from "./recommendations.ts";
+import { readLimitedJson } from "./scan-gateway.ts";
 import type { Impact, Rule, ScanReport } from "./types";
 
 /**
@@ -15,6 +15,7 @@ type Audit = {
   id?: string;
   title?: string;
   description?: string;
+  displayValue?: string;
   score?: number | null;
   scoreDisplayMode?: string;
   details?: { items?: unknown[] };
