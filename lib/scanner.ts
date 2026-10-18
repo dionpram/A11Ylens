@@ -141,7 +141,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       const { browserlessEndpoint } = await import("./browserless");
       const endpoint = browserlessEndpoint(process.env.BROWSERLESS_TOKEN);
       try {
-        browser = await chromium.connectOverCDP(endpoint, { timeout: 12000 });
+        browser = await chromium.connect(endpoint, { timeout: 12000 });
       } catch {
         throw new Error("The managed browser could not start. Please try again later.");
       }
