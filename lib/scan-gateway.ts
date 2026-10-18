@@ -68,7 +68,7 @@ export function isAllowedBetaUrl(input: string, commaSeparatedHosts?: string): b
   let url: URL;
   try { url = new URL(input); } catch { return false; }
   if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return false;
-  const host = url.hostname.toLowerCase().replace(/\\.$/, "");
+  const host = url.hostname.toLowerCase(); // Trailing-dot aliases are not allowlisted.
   return commaSeparatedHosts.split(",").map(h => h.trim().toLowerCase()).filter(Boolean)
     .some(h => h === host && /^[a-z0-9.-]+$/.test(h));
 }
