@@ -1,0 +1,24 @@
+import type { Metadata } from "next";
+import { ArrowUpRight, BookOpen, CheckCircle2, CircleAlert, CircleHelp, MinusCircle, ScanSearch } from "lucide-react";
+import { InfoLayout } from "@/components/InfoLayout";
+
+export const metadata: Metadata = {
+  title: "Methodology | Access Lens",
+  description: "Read the scope and limitations of Access Lens accessibility scans, scores, rules and visual recommendations.",
+};
+
+const statuses = [
+  { icon: CircleAlert, tone: "fail", name: "Failed", description: "An automated rule detected at least one violation on this page." },
+  { icon: CheckCircle2, tone: "pass", name: "Passed", description: "An applicable automated rule passed for the scanned state. It doesn't prove the associated WCAG criterion everywhere." },
+  { icon: CircleHelp, tone: "review", name: "Needs review", description: "The engine could not confidently resolve certain results, or a related check calls for a person." },
+  { icon: MinusCircle, tone: "neutral", name: "Not applicable", description: "The automated rule had no relevant elements in this page state." },
+];
+
+export default function Methodology() {
+  return <InfoLayout eyebrow="HOW WE EVALUATE" title="A clearer report starts with honest methods." intro="We want you to know exactly what the scanner checked, how results are grouped and where automated testing stops.">
+    <section className="info-section"><div className="info-split-heading"><h2>What's actually checked?</h2><p>A single rendered page state, evaluated by an automated browser.</p></div><div className="method-steps"><div className="method-step"><span>1</span><div><h3>Load the public webpage</h3><p>Playwright opens the URL in Chromium at a documented desktop viewport. We record the final URL, page title and scan time. Some sites block automated browsers or require login.</p></div></div><div className="method-step"><span>2</span><div><h3>Run axe-core accessibility rules</h3><p>The scanner collects automated violations, passes, incomplete checks and inapplicable rules. The results reflect only the loaded page state and elements the engine can evaluate.</p></div></div><div className="method-step"><span>3</span><div><h3>Prepare recommendations</h3><p>For supported contrast violations, the scanner may capture a real element, apply a temporary color correction, and try an automated recheck. Unreliable previews are omitted rather than fabricated.</p></div></div></div></section>
+    <section className="info-section info-section-divider"><div className="info-split-heading"><h2>Four kinds of automated results.</h2><p>Not every result is a simple pass or fail. That distinction matters for trust.</p></div><div className="status-guide">{statuses.map(({icon:Icon,tone,name,description})=><div className="status-guide-row" key={name}><span className={`status-guide-icon status-guide-${tone}`}><Icon size={20} aria-hidden="true"/></span><div><h3>{name}</h3><p>{description}</p></div></div>)}</div></section>
+    <section className="info-section info-section-divider"><div className="info-split-heading"><h2>How the score works.</h2><p>It's a descriptive signal, not a percentage of WCAG requirements satisfied.</p></div><div className="score-explainer"><div><span className="section-kicker">AUTOMATED RULE PASS RATE</span><strong>Passed rule IDs ÷ (passed + failed rule IDs) × 100</strong><p>Inconclusive and not-applicable rules are excluded from this denominator. A failed rule is counted once even if several elements fail. The score is not Lighthouse's score and cannot certify accessibility.</p></div><div className="score-example"><span>Example only</span><strong>80<span>/100</span></strong><p>20 passing rules, 5 failing rules</p></div></div></section>
+    <section className="info-section"><div className="info-split-heading"><h2>What a scan can't establish.</h2><p>Some of the most meaningful accessibility barriers require direct human experience.</p></div><div className="method-limitations"><article><ScanSearch size={23}/><h3>One page, one state</h3><p>We don't scan an entire website, mobile views, logged-in journeys, cookie preferences or every interaction.</p></article><article><BookOpen size={23}/><h3>Human testing remains essential</h3><p>Keyboard journeys, focus order, screen-reader use and meaningful alternative text need additional checks.</p></article><article><CircleHelp size={23}/><h3>Not a compliance certificate</h3><p>The PDF is a record of automated findings at a point in time, not legal advice, a complete WCAG evaluation or proof of legal conformity.</p></article></div><a className="info-external-link" href="https://www.w3.org/WAI/test-evaluate/" target="_blank" rel="noopener noreferrer">Learn about accessibility evaluation at W3C <ArrowUpRight size={17} aria-hidden="true"/></a></section>
+  </InfoLayout>;
+}

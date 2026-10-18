@@ -93,3 +93,20 @@ Read `docs/PRD.md` and `docs/ROADMAP.md`. Start with a local install and test a 
 ## GitHub setup
 
 This starter includes a GitHub Actions workflow that runs tests, typechecking and a build on push and pull requests. For repository creation, connector access, and the alternative Git CLI method, see [docs/GITHUB-SETUP.md](docs/GITHUB-SETUP.md).
+
+## Site pages
+
+This version includes a full informational website alongside the scanner:
+
+- `/` — homepage, single-page scan form and sample report
+- `/how-it-works` — the complete user journey and what results mean
+- `/methodology` — axe-core scoring, reported states, test scope and limitations
+- `/about` — purpose, design principles and optional-support model
+- `/faq` — common product and accessibility questions
+- `/privacy` — current MVP data-handling notes (not a final legal privacy notice)
+
+The shared header includes a keyboard-accessible mobile menu. Informational pages
+have route-specific metadata and share a responsive footer. The homepage's scanner
+and print-to-PDF report flow remain intact. The existing backend should **not**
+be deployed for unrestricted public scanning before the security work described
+above is completed.
