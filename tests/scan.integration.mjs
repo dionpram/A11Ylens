@@ -41,6 +41,7 @@ async function untilServerReady() {
   throw new Error(`Next.js did not start in time.\n${appLog}`);
 }
 
+let watchdog;
 try {
   await Promise.race([
     (async () => {
@@ -65,9 +66,10 @@ try {
       assert(json.previews[0].afterRatio >= json.previews[0].threshold, 'The suggested contrast must meet the numeric target');
       console.log('E2E passed: URL -> browser -> axe findings -> dynamic visual fix -> report');
     })(),
-    new Promise((_, reject) => setTimeout(() => reject(new Error(`E2E timed out.\n${appLog}`)), TEST_TIMEOUT_MS)),
+    new Promise((_, reject) => { watchdog = setTimeout(() => reject(new Error(`E2E timed out.\n${appLog}`)), TEST_TIMEOUT_MS); }),
   ]);
 } finally {
+  clearTimeout(watchdog);
   if (process.platform === 'win32') app.kill('SIGTERM');
   else { try { process.kill(-app.pid, 'SIGTERM'); } catch { app.kill('SIGTERM'); } }
   fixtureServer.close();
