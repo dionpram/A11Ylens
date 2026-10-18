@@ -4,6 +4,7 @@ import AxeBuilder from "@axe-core/playwright";
 import type { ScanReport, Rule, ContrastPreview, Impact } from "./types";
 import { validatePublicUrl } from "./safety";
 import { contrast, findAccessibleColor, readRGB, toHex } from "./contrast";
+import { recommendationForRule } from "./recommendations";
 
 type AxeRule = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
 const wcagTags = (tags: string[]) => tags.filter(t => /^wcag\d/.test(t));
@@ -13,6 +14,7 @@ function formatRule(rule: AxeRule, includeNodes = false): Rule {
     id: rule.id,
     title: rule.help,
     description: rule.description,
+    recommendation: recommendationForRule(rule.id),
     helpUrl: rule.helpUrl,
     impact: (rule.impact ?? "unknown") as Impact,
     wcag: wcagTags(rule.tags),
@@ -164,8 +166,12 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
     const failedIds = new Set(failures.map(r => r.id));
     const review = result.incomplete.map(rule => formatRule(rule, true));
     const reviewIds = new Set(review.map(r => r.id));
-    const passes = result.passes.filter(rule => !failedIds.has(rule.id) && !reviewIds.has(rule.id)).map(rule => formatRule(rule));
-    const denominator = passes.length + failures.length;
+    const passes = result.passes.filter(rule => !reviewIds.has(rule.id)).map(rule => ({
+      ...formatRule(rule),
+      partiallyPassing: failedIds.has(rule.id),
+    }));
+    const fullyPassedRules = passes.filter(rule => !rule.partiallyPassing).length;
+    const denominator = fullyPassedRules + failures.length;
     const preview = await makeContrastPreview(page, result.violations);
 
     return {
@@ -175,13 +181,13 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       pageTitle: (await page.title()).slice(0, 160) || new URL(finalUrl).hostname,
       scannedAt: new Date().toISOString(),
       durationMs: Date.now() - started,
-      score: denominator > 0 ? Math.round(100 * passes.length / denominator) : null,
-      scoreMethod: "Percentage of applicable automated axe rule IDs with no detected failures; excludes inconclusive rules. Not a Lighthouse score, WCAG score, or compliance certification.",
+      score: denominator > 0 ? Math.round(100 * fullyPassedRules / denominator) : null,
+      scoreMethod: "Percentage of applicable automated axe rule IDs with no detected failures; excludes inconclusive rules. Passing element instances from partially failing rules are listed separately. Not a Lighthouse score, WCAG score, or compliance certification.",
       environment: { viewport: "1365 × 900", browser: "Chromium", engine: "axe-core" },
       counts: {
         failedRules: failures.length,
         affectedElements: failures.reduce((sum, v) => sum + v.count, 0),
-        passedRules: passes.length,
+        passedRules: fullyPassedRules,
         reviewRules: review.length,
         notApplicableRules: result.inapplicable.length,
       },

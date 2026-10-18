@@ -4,6 +4,8 @@ export type Rule = {
   id: string;
   title: string;
   description?: string;
+  recommendation?: string;
+  partiallyPassing?: boolean;
   helpUrl?: string;
   impact?: Impact;
   wcag: string[];

@@ -12,7 +12,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -28,3 +28,7 @@ jobs:
         run: npm run typecheck
       - name: Build web app
         run: npm run build
+      - name: Install Chromium for scanner smoke test
+        run: npx playwright install --with-deps chromium
+      - name: Verify real scan against controlled fixture
+        run: npm run test:e2e

@@ -110,3 +110,10 @@ have route-specific metadata and share a responsive footer. The homepage's scann
 and print-to-PDF report flow remain intact. The existing backend should **not**
 be deployed for unrestricted public scanning before the security work described
 above is completed.
+
+
+## Working with a Google Stitch design
+
+The visual layout can be replaced without changing the scanner API. See [Engine, API contract and Stitch handoff](docs/ENGINE.md) for the request/response format, how to connect an exported Stitch page, and required security hardening before launch.
+
+The GitHub Actions workflow includes a controlled end-to-end smoke test of the real browser scan after Chromium is installed; run it locally with `npm run test:e2e` after `npm install` and `npx playwright install chromium`.
