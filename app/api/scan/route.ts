@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     // Never expose server paths, stack traces or transport URLs to visitors.
     // In particular, managed browser connection URLs contain an API token.
     if (mode === "managed-browser") {
-      const startup = /browsers\\.json|cannot find module|failed to load external module/i.test(message);
+      const startup = /browsers\.json|cannot find module|failed to load external module/i.test(message);
       return Response.json({
         error: startup
           ? "The scanning engine could not initialize. Please try the latest preview or report this error."
