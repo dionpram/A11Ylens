@@ -29,7 +29,7 @@ jobs:
       - name: Build web app
         run: npm run build
       - name: Assert scanner runtime assets are included
-        run: node tests/scan-trace.test.mjs
+        run: node tests/scan-trace.check.mjs
       - name: Install Chromium for scanner smoke test
         run: npx playwright install --with-deps chromium
       - name: Verify real scan against controlled fixture

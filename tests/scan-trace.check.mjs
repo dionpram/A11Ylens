@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
-import { join } from "node:path";
 
 // A Next build can succeed while the deployed API function lacks runtime
 // assets. Ensure the /api/scan function trace includes Playwright metadata.
