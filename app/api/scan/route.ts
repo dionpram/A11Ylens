@@ -96,7 +96,18 @@ export async function POST(request: Request) {
     return Response.json(report, { headers: noStore });
   } catch (error) {
     const message = error instanceof Error ? error.message : "The scan could not be completed.";
-    return fail(message.slice(0, 260), mode === "managed-browser" ? 503 : 400);
+    // Never expose server paths, stack traces or transport URLs to visitors.
+    // In particular, managed browser connection URLs contain an API token.
+    if (mode === "managed-browser") {
+      const startup = /browsers\\.json|cannot find module|failed to load external module/i.test(message);
+      return Response.json({
+        error: startup
+          ? "The scanning engine could not initialize. Please try the latest preview or report this error."
+          : "The scanning service could not finish this page right now. Please try again shortly.",
+        code: startup ? "SCANNER_STARTUP_ERROR" : "SCANNER_RUNTIME_ERROR",
+      }, { status: 503, headers: noStore });
+    }
+    return fail(message.slice(0, 260), 400);
   } finally {
     scanning = false;
   }
