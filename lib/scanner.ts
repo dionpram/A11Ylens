@@ -65,7 +65,7 @@ async function makeContrastPreview(page: Page, violations: AxeRule[]): Promise<C
     // Cross-origin iframes, gradients, transparency, and images require more work.
     if (node.target.length !== 1) continue;
     const selector = node.target[0];
-    if (!selector || selector.length > 240) continue;
+    if (typeof selector !== "string" || !selector || selector.length > 240) continue;
     const locator = page.locator(selector).first();
     try {
       if (!(await locator.isVisible({ timeout: 1200 }))) continue;
