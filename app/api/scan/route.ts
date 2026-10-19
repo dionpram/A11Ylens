@@ -103,7 +103,11 @@ export async function POST(request: Request) {
     }
     try {
       const visitor = request.headers.get("x-a11ylens-visitor-id") || "anonymous";
-      const limit = Math.max(1, Math.min(100, Number(process.env.SCAN_DAILY_LIMIT || 30)));
+      const configuredLimit = Number(process.env.SCAN_DAILY_LIMIT ?? "30");
+      if (!Number.isInteger(configuredLimit) || configuredLimit < 1 || configuredLimit > 30) {
+        return fail("The daily scanner quota is invalid or exceeds the hard maximum.", 503);
+      }
+      const limit = configuredLimit;
       const budget = reserveScanSlot({ path: process.env.SCAN_BUDGET_PATH, visitor, dailyLimit: limit });
       if (!budget.allowed) {
         return Response.json({
