@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, type MouseEvent } from "react";
 import { ArrowRight, Menu, X } from "lucide-react";
 import Logo from "@/components/Logo";
+import BuyMeACoffeeLink from "@/components/BuyMeACoffeeLink";
 
 const links = [
   { href: "/how-it-works", label: "How it works" },
@@ -33,7 +34,7 @@ export default function SiteHeader({ onHome }: { onHome?: () => void }) {
           {links.map(link => <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined}>{link.label}</Link>)}
         </nav>
         <div className="nav-right header-actions">
-          <span className="nav-free"><span /> Free, always</span>
+          <span className="nav-free"><span /> Free, always</span><BuyMeACoffeeLink className="header-bmac"><span className="bmac-desktop-label">Buy Me a Coffee</span><span className="bmac-short-label">Coffee</span></BuyMeACoffeeLink>
           {pathname !== "/" && <Link href="/" className="header-scan-link">Check a page <ArrowRight size={15} aria-hidden="true" /></Link>}
           <button type="button" className="mobile-menu-button" aria-label={open ? "Close navigation" : "Open navigation"} aria-controls="mobile-navigation" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? <X size={23}/> : <Menu size={23}/>}</button>
         </div>

@@ -35,3 +35,17 @@
 .not-found-shell{max-width:650px;margin:0 auto;padding:125px 25px 155px;text-align:center;display:flex;flex-direction:column;align-items:center}.not-found-icon{height:72px;width:72px;border-radius:23px;background:#faeae3;color:#a64f3b;display:grid;place-items:center;margin-bottom:29px}.not-found-shell h1{font-size:clamp(38px,5vw,56px);line-height:1.1;letter-spacing:-.055em}.not-found-shell p{font-size:16px;color:#738177;margin:20px 0 28px}
 
 .recommended-action{background:#f4f7f0;border-left:3px solid #517e5d;padding:14px 16px;border-radius:8px;margin:14px 0 16px}.recommended-action strong{font-size:13px}.recommended-action p{font-size:13px;color:#556f5d;margin-top:5px}.partial-pass{font-size:11px;color:#7c6251;font-weight:600}
+
+/* Optional contribution link: local brand mark, no third-party embed. */
+.header-bmac{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#ffdd00;color:#1b2927;border:1px solid #e0bf00;box-shadow:0 2px 0 rgba(30,27,12,.1);border-radius:11px;min-height:42px;padding:9px 13px;font-size:12px;font-weight:800;white-space:nowrap;line-height:1.2}
+.header-bmac:hover{background:#ffe844;text-decoration:none;transform:translateY(-1px)}
+.bmac-mark{display:inline-block;flex-shrink:0}
+.header-bmac .bmac-short-label{display:none}
+.support-panel .bmac-report-link{display:inline-flex;align-items:center;gap:9px}
+.support-footer .bmac-report-link{display:inline-flex;align-items:center;gap:7px}
+.scanner-paused-note{display:flex;align-items:start;gap:9px;background:#f7efe7;color:#81513f;border:1px solid #ebd5c5;border-radius:12px;padding:12px 14px;margin-top:13px;font-size:13px;line-height:1.5}
+.scanner-paused-note svg{flex-shrink:0;margin-top:1px}
+@media(max-width:980px){.nav-free{display:none}}
+@media(max-width:760px){.header-bmac{padding:9px 10px;min-height:40px;font-size:12px}.header-bmac .bmac-desktop-label{display:none}.header-bmac .bmac-short-label{display:inline}.header-actions{gap:10px}}
+@media(max-width:370px){.brand-lockup{font-size:18px}.header-bmac{padding:8px 9px;gap:6px}.header-bmac .bmac-short-label{font-size:11px}.header-actions{gap:7px}}
+@media print{.header-bmac,.scanner-paused-note{display:none!important}}
