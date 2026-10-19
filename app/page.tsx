@@ -51,7 +51,6 @@ export default function Home() {
     if (pending) return;
     if (scanAvailable !== true) {
       setError("Live scanning is paused while we finish security checks. The sample report is available below.");
-      setDiagnostic("SCANNER_PAUSED");
       return;
     }
     setError("");
