@@ -12,7 +12,10 @@ services:
       SCANNER_SECURITY_HOLD: "false"
       ALLOW_LOCAL_SCANS: "false"
       PAGESPEED_API_ENABLED: "false"
+      SCAN_BUDGET_PATH: "/state/scans.json"
+      SCAN_DAILY_LIMIT: "30"
     networks: [private_scan]
+    volumes: [scan_state:/state]
     ports: ["127.0.0.1:3001:3000"]
     depends_on: [egress]
     read_only: true
@@ -48,3 +51,6 @@ networks:
     driver: bridge
   public_egress:
     driver: bridge
+
+volumes:
+  scan_state:
