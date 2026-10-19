@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   // Exact beta allowlist before counting attempts: invalid/disallowed hosts
   // should not consume a tester's scarce browser quota.
   if (mode === "managed-browser" && !isAllowedBetaUrl(url, process.env.SCAN_BETA_ALLOWED_HOSTS)) {
-    return fail("This beta currently scans approved test websites only.", 403);
+    return Response.json({ error: "This is a restricted test preview. Try pramadion.com, example.com, or riderguide.com. Public scanning of any URL is not enabled yet.", code: "BETA_DOMAIN_NOT_ALLOWED" }, { status: 403, headers: noStore });
   }
 
   // This is a temporary in-memory guard for a protected beta ONLY.
