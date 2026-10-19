@@ -1,5 +1,6 @@
 import { authenticateWorker, isAllowedBetaUrl, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
 import { safeScannerFailure } from "@/lib/scan-errors";
+import { consumeScanBudget, scanRateLimitPolicy } from "@/lib/scan-rate-limit";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -32,17 +33,31 @@ export async function POST(request: Request) {
     if (!url || url.length > 2048) throw Error("Invalid URL");
   } catch { return fail("Enter a valid website URL.", 400); }
 
-  // Treat browser-supplied forwarding headers as advisory only. This is not
-  // adequate identity or rate-limiting for a multi-instance public service.
+  // Exact beta allowlist before counting attempts: invalid/disallowed hosts
+  // should not consume a tester's scarce browser quota.
+  if (mode === "managed-browser" && !isAllowedBetaUrl(url, process.env.SCAN_BETA_ALLOWED_HOSTS)) {
+    return fail("This beta currently scans approved test websites only.", 403);
+  }
+
+  // This is a temporary in-memory guard for a protected beta ONLY.
+  // Shared durable rate limiting and a job queue are required for public use.
+  // Preview testers are allowed more retries, without removing abuse limits.
   if (mode !== "worker") {
     if (visitors.size > 5000) visitors.clear();
     const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0] || "local";
     const key = ip.trim().slice(0, 128);
     const now = Date.now();
-    const recent = (visitors.get(key) || []).filter(t => now - t < 10 * 60 * 1000);
-    if (recent.length >= 3) return fail("Rate limit reached. Please try again later.", 429);
-    recent.push(now);
-    visitors.set(key, recent);
+    const policy = scanRateLimitPolicy(mode);
+    const budget = consumeScanBudget(visitors.get(key) || [], now, policy);
+    visitors.set(key, budget.timestamps);
+    if (!budget.allowed) {
+      const seconds = budget.retryAfterSeconds;
+      return Response.json({
+        error: `A11Ylens beta limit reached: ${policy.limit} attempts per 10 minutes. Try again in about ${Math.ceil(seconds / 60)} minute(s). No new scan was started.`,
+        code: "A11YLENS_RATE_LIMIT",
+        retryAfterSeconds: seconds,
+      }, { status: 429, headers: { ...noStore, "Retry-After": String(seconds) } });
+    }
   }
 
   if (mode === "proxy") {
@@ -67,13 +82,6 @@ export async function POST(request: Request) {
     } catch {
       return fail("The scanning service is unavailable or returned an invalid report. Please try again later.", 502);
     }
-  }
-
-  // Managed-browser beta is limited to domains explicitly approved for testing.
-  // Never enable arbitrary public domains here without external abuse controls
-  // and a reviewed remote-browser network isolation policy.
-  if (mode === "managed-browser" && !isAllowedBetaUrl(url, process.env.SCAN_BETA_ALLOWED_HOSTS)) {
-    return fail("This beta currently scans approved test websites only.", 403);
   }
 
   if (mode === "pagespeed") {
