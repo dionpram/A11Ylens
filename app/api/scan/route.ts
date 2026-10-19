@@ -1,6 +1,7 @@
 import { authenticateWorker, isAllowedBetaUrl, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
 import { safeScannerFailure } from "@/lib/scan-errors";
 import { consumeScanBudget, scanRateLimitPolicy } from "@/lib/scan-rate-limit";
+import { normalizeWebsiteInput } from "@/lib/url-input";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -32,6 +33,11 @@ export async function POST(request: Request) {
     url = body.url.trim();
     if (!url || url.length > 2048) throw Error("Invalid URL");
   } catch { return fail("Enter a valid website URL.", 400); }
+  try {
+    url = normalizeWebsiteInput(url);
+  } catch {
+    return Response.json({error: "Enter a public website URL, not an API key.", code: "INVALID_WEBSITE_URL"}, {status:400,headers:noStore});
+  }
 
   // Exact beta allowlist before counting attempts: invalid/disallowed hosts
   // should not consume a tester's scarce browser quota.

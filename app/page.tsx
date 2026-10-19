@@ -8,6 +8,7 @@ import Report from "@/components/Report";
 import { demoReport } from "@/lib/demo";
 import type { ScanReport } from "@/lib/types";
 import { parseScanFailure } from "@/lib/scan-errors";
+import { normalizeWebsiteInput } from "@/lib/url-input";
 
 const stages = ["Opening the page", "Checking page structure and labels", "Looking for accessibility barriers", "Preparing the report"];
 
@@ -44,11 +45,14 @@ export default function Home() {
     if (pending) return;
     setError("");
     setDiagnostic("");
-    const value = /^(https?:\/\/)/i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+    let value: string;
     try {
-      const check = new URL(value);
-      if (!check.hostname.includes(".")) throw new Error("Please enter a public webpage URL.");
-    } catch { setError("Enter a valid public URL, like https://example.com."); return; }
+      value = normalizeWebsiteInput(url);
+    } catch {
+      setDiagnostic("INVALID_WEBSITE_URL");
+      setError("Enter a public website address, such as https://pramadion.com/. API keys don't go here.");
+      return;
+    }
     setPending(true);
     try {
       let response: Response;
