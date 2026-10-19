@@ -7,6 +7,8 @@ import SiteFooter from "@/components/SiteFooter";
 import Report from "@/components/Report";
 import { demoReport } from "@/lib/demo";
 import type { ScanReport } from "@/lib/types";
+import { parseScanFailure } from "@/lib/scan-errors";
+import { normalizeWebsiteInput } from "@/lib/url-input";
 
 const stages = ["Opening the page", "Checking page structure and labels", "Looking for accessibility barriers", "Preparing the report"];
 
@@ -35,22 +37,47 @@ export default function Home() {
   const [report, setReport] = useState<ScanReport | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [diagnostic, setDiagnostic] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scan = async (event: React.FormEvent) => {
     event.preventDefault();
     if (pending) return;
     setError("");
-    const value = /^(https?:\/\/)/i.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+    setDiagnostic("");
+    let value: string;
     try {
-      const check = new URL(value);
-      if (!check.hostname.includes(".")) throw new Error("Please enter a public webpage URL.");
-    } catch { setError("Enter a valid public URL, like https://example.com."); return; }
+      value = normalizeWebsiteInput(url);
+    } catch {
+      setDiagnostic("INVALID_WEBSITE_URL");
+      setError("Enter a public website address, such as https://pramadion.com/. API keys don't go here.");
+      return;
+    }
     setPending(true);
     try {
-      const response = await fetch("/api/scan", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: value }) });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Couldn't complete this scan.");
+      let response: Response;
+      try {
+        response = await fetch("/api/scan", {
+          method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ url: value }), cache: "no-store",
+          signal: AbortSignal.timeout(59000),
+        });
+      } catch {
+        setDiagnostic("NETWORK");
+        throw new Error("The browser could not reach the scan service. Check the connection and try again.");
+      }
+      const text = await response.text();
+      let data: unknown = null;
+      try { data = JSON.parse(text); } catch { /* Non-JSON provider/platform error. */ }
+      if (!response.ok) {
+        const failure = parseScanFailure(data, response.status);
+        setDiagnostic(failure.code);
+        throw new Error(failure.message);
+      }
+      if (!data || typeof data !== "object" || !("id" in data) || !("failures" in data) || !Array.isArray(data.failures) || !("passes" in data) || !Array.isArray(data.passes)) {
+        setDiagnostic("INVALID_REPORT");
+        throw new Error("The scanner returned an incomplete report. The website has not been evaluated.");
+      }
       setReport(data as ScanReport);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -58,13 +85,13 @@ export default function Home() {
     } finally { setPending(false); }
   };
 
-  const reset = () => { setReport(null); setError(""); window.scrollTo({ top: 0, behavior: "smooth" }); setTimeout(()=>inputRef.current?.focus(), 80); };
+  const reset = () => { setReport(null); setError(""); setDiagnostic(""); window.scrollTo({ top: 0, behavior: "smooth" }); setTimeout(()=>inputRef.current?.focus(), 80); };
 
   return <div>
     <SiteHeader onHome={report ? reset : undefined}/>
     {report ? <main id="main-content"><Report report={report} onReset={reset}/></main> : <>
       <main id="main-content" className="screen-only">
-        <section className="hero"><div className="hero-glow"/><div className="container hero-grid"><div className="hero-copy"><div className="announcement"><span className="announcement-dot"/> A little more accessible, every day <ChevronRight size={14}/></div><h1>A more welcoming web starts <em>here.</em></h1><p className="hero-subtitle">A simple way to understand your website's accessibility. See what's working, discover what's not, and learn how to make it better.</p><form className="url-form" onSubmit={scan}><label htmlFor="website-url" className="sr-only">Webpage URL</label><div className="url-box"><Link2 size={21} className="url-icon"/><input id="website-url" ref={inputRef} inputMode="url" autoComplete="url" type="text" spellCheck={false} placeholder="Paste a website URL" value={url} onChange={e=>setUrl(e.target.value)} disabled={pending} required/><button className="button button-coral" type="submit" disabled={pending}>{pending ? <><Loader2 className="spinning" size={18}/> Scanning</> : <>Check page <ArrowRight size={18}/></>}</button></div></form>{error && <div className="error-message" role="alert"><CircleAlert size={16}/>{error}</div>}<div className="hero-micro"><span><Check size={14}/> No sign up</span><span><Check size={14}/> One page at a time</span><span><Check size={14}/> Free to use</span></div><button className="sample-link" onClick={()=>{setReport(demoReport);window.scrollTo({top:0,behavior:"smooth"});}}>Take a look at a sample report <ArrowUpRight size={16}/></button></div><div className="hero-right"><div className="decor-dot decor-dot-top"/><SampleCard/><div className="decor-dot decor-dot-bottom"/></div></div></section>
+        <section className="hero"><div className="hero-glow"/><div className="container hero-grid"><div className="hero-copy"><div className="announcement"><span className="announcement-dot"/> A little more accessible, every day <ChevronRight size={14}/></div><h1>A more welcoming web starts <em>here.</em></h1><p className="hero-subtitle">A simple way to understand your website's accessibility. See what's working, discover what's not, and learn how to make it better.</p><form className="url-form" onSubmit={scan}><label htmlFor="website-url" className="sr-only">Webpage URL</label><div className="url-box"><Link2 size={21} className="url-icon"/><input id="website-url" ref={inputRef} inputMode="url" autoComplete="url" type="text" spellCheck={false} placeholder="Paste a website URL" value={url} onChange={e=>setUrl(e.target.value)} disabled={pending} required/><button className="button button-coral" type="submit" disabled={pending}>{pending ? <><Loader2 className="spinning" size={18}/> Scanning</> : <>Check page <ArrowRight size={18}/></>}</button></div></form>{error && <div className="error-message" role="alert"><CircleAlert size={16}/><span>{error}{diagnostic && <small style={{display:"block",marginTop:6,opacity:0.8,fontSize:"0.8em"}}>Diagnostic code: {diagnostic}</small>}</span></div>}<div className="hero-micro"><span><Check size={14}/> No sign up</span><span><Check size={14}/> One page at a time</span><span><Check size={14}/> Free to use</span></div><button className="sample-link" onClick={()=>{setReport(demoReport);window.scrollTo({top:0,behavior:"smooth"});}}>Take a look at a sample report <ArrowUpRight size={16}/></button></div><div className="hero-right"><div className="decor-dot decor-dot-top"/><SampleCard/><div className="decor-dot decor-dot-bottom"/></div></div></section>
         <section className="section-how" id="how-it-works"><div className="container"><div className="section-kicker">HOW IT WORKS</div><div className="section-headline"><h2>Clear answers.<br/>Without the complexity.</h2><p>Accessibility can feel overwhelming. Getting started shouldn't.</p></div><Steps/></div></section>
         <section className="section-why" id="why"><div className="container why-grid"><div className="why-intro"><span className="section-kicker">THE WHOLE PICTURE</span><h2>Not just what's wrong.<br/><em>What's working, too.</em></h2><p>A good accessibility check tells you more than what's broken. See passing checks, understand what automation can't tell you, and focus on meaningful improvements.</p><div className="why-note"><ShieldCheck size={21}/><span>Designed to inform, never to shame.</span></div></div><div className="why-tiles"><div className="why-tile"><div className="tile-icon tile-red"><CircleAlert size={20}/></div><div><h3>What needs fixing</h3><p>Prioritized issues, affected elements, and practical next steps.</p></div></div><div className="why-tile"><div className="tile-icon tile-green"><CheckCircle2 size={20}/></div><div><h3>What already passes</h3><p>Positive automated results, documented in the same report.</p></div></div><div className="why-tile"><div className="tile-icon tile-blue"><Eye size={20}/></div><div><h3>What needs a closer look</h3><p>Honest notes about tests that require human judgment.</p></div></div></div></div></section>
         <section className="section-visual"><div className="container visual-feature"><div className="visual-feature-copy"><span className="section-kicker">DESIGNED TO MAKE SENSE</span><h2>Don't just read the fix.<br/><em>See the difference.</em></h2><p>For supported problems like color contrast, we'll show you what a suggested improvement could look like using the actual element from your page.</p><span className="tiny-note"><Sparkles size={16}/> Actual on-page previews appear for compatible real scans.</span></div><div className="visual-sample"><div className="visual-head"><span><span className="live-dot"/> Example visual recommendation</span><span className="contrast-tag">Color contrast</span></div><div className="visual-panes"><div className="visual-pane"><div className="demo-button demo-before">Explore places</div><div className="pane-footer"><CircleAlert size={15}/> Before <strong>3.54:1</strong></div></div><div className="visual-pane"><div className="demo-button demo-after">Explore places</div><div className="pane-footer pane-pass"><CheckCircle2 size={15}/> Suggested <strong>5.74:1</strong></div></div></div><div className="visual-foot">An illustration of the concept; not from a real website scan.</div></div></div></section>

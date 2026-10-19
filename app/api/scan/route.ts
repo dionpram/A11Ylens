@@ -1,6 +1,7 @@
-import { scanWebsite } from "@/lib/scanner";
-import { scanWithPageSpeed } from "@/lib/pagespeed";
-import { authenticateWorker, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
+import { authenticateWorker, isAllowedBetaUrl, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
+import { safeScannerFailure } from "@/lib/scan-errors";
+import { consumeScanBudget, scanRateLimitPolicy } from "@/lib/scan-rate-limit";
+import { normalizeWebsiteInput } from "@/lib/url-input";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,6 +15,13 @@ const fail = (error: string, status: number) => Response.json({ error }, { statu
 
 export async function POST(request: Request) {
   const mode = scanMode();
+  if (process.env.SCANNER_SECURITY_HOLD === "true") {
+    // Never accept URLs or invoke browser code when held. No data is sent.
+    return Response.json({
+      error: "Live scanning is temporarily paused for a security review. No webpage was opened. The sample report is still available.",
+      code: "SCANNER_SECURITY_HOLD",
+    }, { status: 503, headers: noStore });
+  }
   if (mode === "disabled") return fail("Scanning is not configured on this preview. Try the sample report for now.", 503);
 
   // The browser-worker endpoint is never usable without a long shared secret.
@@ -32,18 +40,42 @@ export async function POST(request: Request) {
     url = body.url.trim();
     if (!url || url.length > 2048) throw Error("Invalid URL");
   } catch { return fail("Enter a valid website URL.", 400); }
+  // Only the isolated local fixture test may use loopback in development.
+  // Production never enables this exception.
+  const localFixture = process.env.NODE_ENV !== "production" && process.env.ALLOW_LOCAL_SCANS === "true";
+  if (!localFixture) {
+    try {
+      url = normalizeWebsiteInput(url);
+    } catch {
+      return Response.json({error: "Enter a public website URL, not an API key.", code: "INVALID_WEBSITE_URL"}, {status:400,headers:noStore});
+    }
+  }
 
-  // Treat browser-supplied forwarding headers as advisory only. This is not
-  // adequate identity or rate-limiting for a multi-instance public service.
+  // Exact beta allowlist before counting attempts: invalid/disallowed hosts
+  // should not consume a tester's scarce browser quota.
+  if (mode === "managed-browser" && !isAllowedBetaUrl(url, process.env.SCAN_BETA_ALLOWED_HOSTS)) {
+    return Response.json({ error: "This is a restricted test preview. Try pramadion.com, example.com, or riderguide.com. Public scanning of any URL is not enabled yet.", code: "BETA_DOMAIN_NOT_ALLOWED" }, { status: 403, headers: noStore });
+  }
+
+  // This is a temporary in-memory guard for a protected beta ONLY.
+  // Shared durable rate limiting and a job queue are required for public use.
+  // Preview testers are allowed more retries, without removing abuse limits.
   if (mode !== "worker") {
     if (visitors.size > 5000) visitors.clear();
     const ip = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0] || "local";
     const key = ip.trim().slice(0, 128);
     const now = Date.now();
-    const recent = (visitors.get(key) || []).filter(t => now - t < 10 * 60 * 1000);
-    if (recent.length >= 3) return fail("Rate limit reached. Please try again later.", 429);
-    recent.push(now);
-    visitors.set(key, recent);
+    const policy = scanRateLimitPolicy(mode);
+    const budget = consumeScanBudget(visitors.get(key) || [], now, policy);
+    visitors.set(key, budget.timestamps);
+    if (!budget.allowed) {
+      const seconds = budget.retryAfterSeconds;
+      return Response.json({
+        error: `A11Ylens beta limit reached: ${policy.limit} attempts per 10 minutes. Try again in about ${Math.ceil(seconds / 60)} minute(s). No new scan was started.`,
+        code: "A11YLENS_RATE_LIMIT",
+        retryAfterSeconds: seconds,
+      }, { status: 429, headers: { ...noStore, "Retry-After": String(seconds) } });
+    }
   }
 
   if (mode === "proxy") {
@@ -74,6 +106,7 @@ export async function POST(request: Request) {
     try {
       // The backend contacts only Google's fixed HTTPS API endpoint.
       // Google, not this application's browser, fetches the supplied URL.
+      const { scanWithPageSpeed } = await import("@/lib/pagespeed");
       const report = await scanWithPageSpeed(url);
       return Response.json(report, { headers: noStore });
     } catch (error) {
@@ -85,9 +118,14 @@ export async function POST(request: Request) {
   if (scanning) return fail("The scanner is busy. Please try again shortly.", 503);
   scanning = true;
   try {
+    const { scanWebsite } = await import("@/lib/scanner");
     const report = await scanWebsite(url);
     return Response.json(report, { headers: noStore });
   } catch (error) {
+    if (mode === "managed-browser") {
+      // Never serialize raw provider errors (including token-bearing WebSocket URLs).
+      return Response.json(safeScannerFailure(error), { status: 503, headers: noStore });
+    }
     const message = error instanceof Error ? error.message : "The scan could not be completed.";
     return fail(message.slice(0, 260), 400);
   } finally {
