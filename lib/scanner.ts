@@ -132,11 +132,18 @@ async function makeContrastPreview(page: Page, violations: AxeRule[]): Promise<C
 export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
   const started = Date.now();
   const url = await validatePublicUrl(inputUrl);
+  const egress = process.env.SECURE_EGRESS_PROXY_URL?.trim();
+  // Production worker must use a network-restricted outbound proxy.
+  if (process.env.NODE_ENV === "production" && process.env.SCAN_WORKER_ENABLED === "true" && !egress)
+    throw new Error("Secure outbound proxy required for worker.");
+  if (egress && new URL(url).protocol !== "https:")
+    throw new Error("Isolated beta supports HTTPS sites only.");
   let browser: Browser | undefined;
   try {
     browser = await chromium.launch({
       headless: true,
       ...(process.env.CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.CHROMIUM_EXECUTABLE_PATH } : {}),
+      ...(egress ? { proxy: { server: egress, bypass: "<-loopback>" } } : {}),
     });
     const context = await browser.newContext({
       viewport: { width: 1365, height: 900 },
@@ -153,7 +160,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       const candidate = route.request().url();
       requestCount++;
       if (requestCount > MAX_BROWSER_REQUESTS) requestLimitHit = true;
-      if (requestLimitHit || !/^https?:/i.test(candidate)) {
+      if (requestLimitHit || !/^https?:/i.test(candidate) || (egress && !/^https:/i.test(candidate))) {
         await route.abort().catch(() => {});
         return;
       }

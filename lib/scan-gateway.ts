@@ -8,6 +8,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 export type ScanMode = "proxy" | "worker" | "pagespeed" | "development" | "disabled";
 
 export function scanMode(env: NodeJS.ProcessEnv = process.env): ScanMode {
+  if (env.SCANNER_SECURITY_HOLD === "true") return "disabled";
   if (env.SCAN_WORKER_URL?.trim()) return "proxy";
   if (env.SCAN_WORKER_ENABLED === "true" && env.SCAN_WORKER_TOKEN?.trim()) return "worker";
   if (env.PAGESPEED_API_ENABLED === "true") return "pagespeed";
