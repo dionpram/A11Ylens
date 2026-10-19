@@ -47,21 +47,28 @@ Docker. Browser vulnerabilities and the proxy process are residual risks.
    docker compose -f compose.secure.yaml config --quiet
    docker compose -f compose.secure.yaml up --build
 
-5. In a second terminal, export your local secret from .env:
+5. Confirm the Docker network is actually isolated before sending real URLs:
+
+   docker compose -f compose.secure.yaml exec -T scanner node security/check-network.mjs
+
+   Do not proceed if this check fails. It must reject direct internet and
+   cloud-metadata connections, and it must reject private addresses via the proxy.
+
+6. In a second terminal, export your local secret from .env:
 
    set -a; . ./.env; set +a
 
-6. Check the API locally:
+7. Check the API locally:
 
    curl -X POST http://127.0.0.1:3001/api/scan -H "Content-Type: application/json" -H "x-a11ylens-worker-token: $SCAN_WORKER_TOKEN" --data '{"url":"https://example.com/"}'
 
-7. For up to 10 diverse public sites, create a local urls.txt containing one
+8. For up to 10 diverse public sites, create a local urls.txt containing one
    website per line (no private links, secrets or signed query parameters).
    Then run:
 
    node scripts/test-public-sites.mjs urls.txt
 
-8. Stop the container without deleting its persistent daily budget:
+9. Stop the container without deleting its persistent daily budget:
 
    docker compose -f compose.secure.yaml down
 
