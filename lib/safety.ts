@@ -49,6 +49,17 @@ export async function validatePublicUrl(raw: string): Promise<string> {
   if (url.port && !["80", "443"].includes(url.port)) throw new Error("Only standard HTTP and HTTPS ports are supported.");
   if (blockedHost.test(url.hostname)) throw new Error("Private or local addresses can't be scanned.");
   if (!url.hostname || url.hostname.endsWith(".")) throw new Error("Enter a public website address.");
+  const literal = url.hostname.startsWith("[") && url.hostname.endsWith("]")
+    ? url.hostname.slice(1, -1) : url.hostname;
+  if (isIP(literal) && !isPublicAddress(literal))
+    throw new Error("Private or restricted IP addresses cannot be scanned.");
+  if (process.env.SECURE_EGRESS_PROXY_URL && process.env.SCAN_WORKER_ENABLED === "true" && process.env.NODE_ENV === "production") {
+    // Docker's internal network intentionally has NO public DNS or outbound
+    // route. The separate restricted egress proxy resolves all DNS records,
+    // denies private/metadata IPs and dials a pinned numeric IP at CONNECT.
+    // Never treat this as safe outside that isolated network architecture.
+    return url.toString();
+  }
   const resolved = await lookup(url.hostname, { all: true, verbatim: true });
   if (!resolved.length || resolved.some(({ address }) => !isPublicAddress(address))) {
     throw new Error("This host resolves to a restricted or non-public IP address.");

@@ -32,3 +32,20 @@ test('rejects unsupported, credentialed, private and unusual URL targets', async
     await assert.rejects(() => validatePublicUrl(url), undefined, url);
   }
 });
+
+test('isolated-worker URL validation defers DNS to network egress proxy, never permits private literals', async () => {
+  const previous={proxy:process.env.SECURE_EGRESS_PROXY_URL,worker:process.env.SCAN_WORKER_ENABLED,mode:process.env.NODE_ENV};
+  try {
+    process.env.SECURE_EGRESS_PROXY_URL='http://egress:3128';
+    process.env.SCAN_WORKER_ENABLED='true';
+    process.env.NODE_ENV='production';
+    assert.equal(await validatePublicUrl('https://example.com/test?q=1'),'https://example.com/test?q=1');
+    for (const url of ['http://127.0.0.1/','https://169.254.169.254/','https://10.0.0.1/','https://[::1]/','https://[fd00::1]/']) {
+      await assert.rejects(() => validatePublicUrl(url),undefined,url);
+    }
+  } finally {
+    for(const [key,value] of [['SECURE_EGRESS_PROXY_URL',previous.proxy],['SCAN_WORKER_ENABLED',previous.worker],['NODE_ENV',previous.mode]]) {
+      if(value===undefined)delete process.env[key];else process.env[key]=value;
+    }
+  }
+});
