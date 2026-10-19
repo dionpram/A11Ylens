@@ -13,7 +13,7 @@ for(let i=0;i<urls.length;i++){
     const result=await fetch("http://127.0.0.1:3001/api/scan",{
       method:"POST",headers:{
         "Content-Type":"application/json",
-        "x-a11ylens-worker-token":token,
+        "x-a11ylens-local-token":token,
         "x-a11ylens-visitor-id":createHash("sha256").update("operator-"+i).digest("hex").slice(0,24)
       },body:JSON.stringify({url:u}),signal:AbortSignal.timeout(59000)
     });

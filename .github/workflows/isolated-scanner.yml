@@ -23,6 +23,17 @@ jobs:
         run: docker compose -f compose.secure.yaml up --build --detach --wait --wait-timeout 180
       - name: Verify live network isolation
         run: docker compose -f compose.secure.yaml exec -T scanner node security/check-network.mjs
+      - name: Verify invalid local gateway requests are rejected
+        run: |
+          node --input-type=module <<'EOF'
+          import assert from 'node:assert/strict';
+          const r = await fetch('http://127.0.0.1:3001/api/scan', {
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({url:'https://example.com'})
+          });
+          assert.equal(r.status,401);
+          console.log('PASS: local gateway denies unauthenticated scans.');
+          EOF
       - name: Check real public HTTPS URL with axe-core in isolated worker
         run: |
           node --input-type=module <<'EOF'
@@ -31,7 +42,7 @@ jobs:
             method:'POST',
             headers:{
               'Content-Type':'application/json',
-              'x-a11ylens-worker-token':process.env.SCAN_WORKER_TOKEN,
+              'x-a11ylens-local-token':process.env.SCAN_WORKER_TOKEN,
               'x-a11ylens-visitor-id':'aabbccddeeff001122334455'
             },
             body:JSON.stringify({url:'https://example.com/'}),

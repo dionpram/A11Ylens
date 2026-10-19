@@ -19,7 +19,7 @@ without the paid Google or Browserless services.
   separate the browser from the proxy's public-facing network.
 - Containers drop Linux capabilities and have CPU, memory, process and
   ephemeral-storage limits.
-- Worker API is exposed to 127.0.0.1:3001 **on your own machine only**.
+- A separate tiny authenticated ingress gateway exposes 127.0.0.1:3001 **on your own machine only**. The worker has no host port and only the Docker-internal network.
   A 32+ character secret token is required. Never share that token.
 - A persistent worker-level file caps new scans to 30 per UTC day in total
   and 4 per visitor in a rolling 10-minute window. Restarts retain the budget.
@@ -60,7 +60,7 @@ Docker. Browser vulnerabilities and the proxy process are residual risks.
 
 7. Check the API locally:
 
-   curl -X POST http://127.0.0.1:3001/api/scan -H "Content-Type: application/json" -H "x-a11ylens-worker-token: $SCAN_WORKER_TOKEN" --data '{"url":"https://example.com/"}'
+   curl -X POST http://127.0.0.1:3001/api/scan -H "Content-Type: application/json" -H "x-a11ylens-local-token: $SCAN_WORKER_TOKEN" --data '{"url":"https://example.com/"}'
 
 8. For up to 10 diverse public sites, create a local urls.txt containing one
    website per line (no private links, secrets or signed query parameters).
