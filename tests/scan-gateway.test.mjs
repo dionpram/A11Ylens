@@ -45,16 +45,19 @@ test('managed browser is opt-in, and scanner/worker proxy take priority', () => 
 });
 
 test('closed beta allowlist uses exact host matches only', () => {
-  const allow='pramadion.com,www.pramadion.com,example.com';
+  const allow='pramadion.com,www.pramadion.com,example.com,riderguide.com,www.riderguide.com';
   assert.equal(isAllowedBetaUrl('https://pramadion.com/work', allow), true);
   assert.equal(isAllowedBetaUrl('https://www.pramadion.com/', allow), true);
   assert.equal(isAllowedBetaUrl('https://example.com/', allow), true);
+  assert.equal(isAllowedBetaUrl('https://riderguide.com/best-rated/best-electric-bikes?ref=example', allow), true);
+  assert.equal(isAllowedBetaUrl('https://www.riderguide.com/reviews', allow), true);
   for(const url of [
     'https://evil-pramadion.com/',
     'https://pramadion.com.evil.com/',
     'http://localhost/',
     'file:///etc/passwd',
     'https://example.com.evil/',
+    'https://riderguide.com.evil.com/',
   ]) assert.equal(isAllowedBetaUrl(url, allow), false, url);
   assert.equal(isAllowedBetaUrl('https://pramadion.com/', ''), false);
 });
