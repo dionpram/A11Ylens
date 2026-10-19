@@ -16,7 +16,6 @@ services:
       SCAN_DAILY_LIMIT: "30"
     networks: [private_scan]
     volumes: [scan_state:/state]
-    ports: ["127.0.0.1:3001:3000"]
     depends_on: [egress]
     read_only: true
     tmpfs:
@@ -45,11 +44,31 @@ services:
     mem_limit: 192m
     cpus: 0.5
     restart: "no"
+  ingress:
+    build:
+      context: .
+      dockerfile: security/Dockerfile.ingress
+    init: true
+    environment:
+      SCAN_WORKER_TOKEN: "${SCAN_WORKER_TOKEN:?Configure a random secret}"
+    networks: [private_scan, local_ingress]
+    ports: ["127.0.0.1:3001:3002"]
+    depends_on: [scanner]
+    read_only: true
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 32
+    mem_limit: 128m
+    cpus: 0.25
+    restart: "no"
 networks:
   private_scan:
     internal: true
     driver: bridge
   public_egress:
+    driver: bridge
+  local_ingress:
     driver: bridge
 
 volumes:
