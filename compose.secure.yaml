@@ -1,0 +1,50 @@
+# Local no-subscription beta. NEVER expose the API to the internet.
+# Chromium has no direct internet route; proxy validates and pins destination IPs.
+name: a11ylens-secure-local
+services:
+  scanner:
+    build: .
+    init: true
+    environment:
+      SCAN_WORKER_ENABLED: "true"
+      SCAN_WORKER_TOKEN: "${SCAN_WORKER_TOKEN:?Generate a random 32+ character scanner token}"
+      SECURE_EGRESS_PROXY_URL: "http://egress:3128"
+      SCANNER_SECURITY_HOLD: "false"
+      ALLOW_LOCAL_SCANS: "false"
+      PAGESPEED_API_ENABLED: "false"
+    networks: [private_scan]
+    ports: ["127.0.0.1:3001:3000"]
+    depends_on: [egress]
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+      - /app/.next/cache:size=32m,mode=1777
+    shm_size: "256mb"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 96
+    mem_limit: 1024m
+    cpus: 1.5
+    restart: "no"
+  egress:
+    build:
+      context: .
+      dockerfile: security/Dockerfile.egress
+    init: true
+    environment:
+      EGRESS_PORT: "3128"
+    networks: [private_scan, public_egress]
+    read_only: true
+    tmpfs: ["/tmp:size=16m,mode=1777"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 48
+    mem_limit: 192m
+    cpus: 0.5
+    restart: "no"
+networks:
+  private_scan:
+    internal: true
+    driver: bridge
+  public_egress:
+    driver: bridge
