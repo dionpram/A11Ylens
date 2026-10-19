@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, ChevronUp, CircleAlert, Clipboard, Coffee, Download, ExternalLink, FileCheck2, Info, ListFilter, RefreshCw, ShieldCheck, Sparkles, XCircle } from "lucide-react";
 import type { Rule, ScanReport, ContrastPreview } from "@/lib/types";
+import BuyMeACoffeeLink from "@/components/BuyMeACoffeeLink";
 
 const wcagText = (tag: string) => {
   const clean = tag.replace("wcag", "");
@@ -15,14 +16,13 @@ function IconMetric({ icon, value, label, type = "neutral" }: { icon: React.Reac
 }
 
 function Support({ secondary = false }: { secondary?: boolean }) {
-  const url = process.env.NEXT_PUBLIC_SUPPORT_URL;
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
-  if (secondary) return <div className="support-footer"><Coffee size={18} /><span>Found this helpful? Independent tools take care to maintain.</span>{url ? <a href={url} target="_blank" rel="noopener noreferrer">Leave a little thank-you <ArrowRight size={15}/></a> : <span className="muted">Contributions open soon</span>}</div>;
+  if (secondary) return <div className="support-footer"><Coffee size={18} /><span>Found this helpful? Independent tools take care to maintain.</span><BuyMeACoffeeLink className="bmac-report-link">Leave a little thank-you <ArrowRight size={15}/></BuyMeACoffeeLink></div>;
   return <aside className="support-panel" aria-label="Optional support">
     <div className="support-heart"><Coffee size={23} /></div>
     <div className="support-main"><h3>Useful so far? Help keep it free.</h3><p>This is an independent project. Every check and every fix is free; if this report saved you time, a small contribution helps keep it running.</p>
-      {url ? <a className="button button-dark button-small" target="_blank" rel="noopener noreferrer" href={url}>Support the project <ArrowRight size={15}/></a> : <span className="small-note">Contributions will be available after launch. Your full report remains free.</span>}
+      <BuyMeACoffeeLink className="button button-dark button-small bmac-report-link">Buy Me a Coffee <ArrowRight size={15}/></BuyMeACoffeeLink>
     </div>
     <button className="icon-button dismiss" aria-label="Dismiss support suggestion" onClick={() => setDismissed(true)}>×</button>
   </aside>;
