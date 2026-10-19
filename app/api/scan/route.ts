@@ -33,10 +33,15 @@ export async function POST(request: Request) {
     url = body.url.trim();
     if (!url || url.length > 2048) throw Error("Invalid URL");
   } catch { return fail("Enter a valid website URL.", 400); }
-  try {
-    url = normalizeWebsiteInput(url);
-  } catch {
-    return Response.json({error: "Enter a public website URL, not an API key.", code: "INVALID_WEBSITE_URL"}, {status:400,headers:noStore});
+  // Only the isolated local fixture test may use loopback in development.
+  // Production never enables this exception.
+  const localFixture = process.env.NODE_ENV !== "production" && process.env.ALLOW_LOCAL_SCANS === "true";
+  if (!localFixture) {
+    try {
+      url = normalizeWebsiteInput(url);
+    } catch {
+      return Response.json({error: "Enter a public website URL, not an API key.", code: "INVALID_WEBSITE_URL"}, {status:400,headers:noStore});
+    }
   }
 
   // Exact beta allowlist before counting attempts: invalid/disallowed hosts
