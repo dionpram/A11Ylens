@@ -15,6 +15,13 @@ const fail = (error: string, status: number) => Response.json({ error }, { statu
 
 export async function POST(request: Request) {
   const mode = scanMode();
+  if (process.env.SCANNER_SECURITY_HOLD === "true") {
+    // Never accept URLs or invoke browser code when held. No data is sent.
+    return Response.json({
+      error: "Live scanning is temporarily paused for a security review. No webpage was opened. The sample report is still available.",
+      code: "SCANNER_SECURITY_HOLD",
+    }, { status: 503, headers: noStore });
+  }
   if (mode === "disabled") return fail("Scanning is not configured on this preview. Try the sample report for now.", 503);
 
   // The browser-worker endpoint is never usable without a long shared secret.

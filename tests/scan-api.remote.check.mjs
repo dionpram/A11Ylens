@@ -2,7 +2,10 @@ import { spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 
 // This runs after the Next.js production build. No secrets in logs.
-if (process.env.MANAGED_BROWSER_ENABLED !== "true") {
+if (process.env.SCANNER_SECURITY_HOLD === "true") {
+  // Deliberately do not open the remote provider during security hold.
+  console.log("[security-hold] Managed browser smoke test paused; deployment remains inactive.");
+} else if (process.env.MANAGED_BROWSER_ENABLED !== "true") {
   if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_GIT_COMMIT_REF === "remote-browser-beta")
     throw new Error("[scan-api-remote] Managed browser mode not configured.");
   console.log("[scan-api-remote] skipped outside beta.");

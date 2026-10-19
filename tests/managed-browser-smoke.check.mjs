@@ -7,7 +7,10 @@
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 
-if (process.env.MANAGED_BROWSER_ENABLED !== "true") {
+if (process.env.SCANNER_SECURITY_HOLD === "true") {
+  // Deliberately do not open the remote provider during security hold.
+  console.log("[security-hold] Managed browser smoke test paused; deployment remains inactive.");
+} else if (process.env.MANAGED_BROWSER_ENABLED !== "true") {
   if (process.env.VERCEL_ENV === "preview" && process.env.VERCEL_GIT_COMMIT_REF === "remote-browser-beta") {
     throw new Error("[managed-browser-smoke] Managed browser beta not configured.");
   }

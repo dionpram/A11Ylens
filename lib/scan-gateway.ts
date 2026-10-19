@@ -8,6 +8,9 @@ import { createHash, timingSafeEqual } from "node:crypto";
 export type ScanMode = "proxy" | "worker" | "managed-browser" | "pagespeed" | "development" | "disabled";
 
 export function scanMode(env: NodeJS.ProcessEnv = process.env): ScanMode {
+  // Absolute emergency off-switch, taking precedence over all credentials,
+  // modes and workers. It does not depend on the UI.
+  if (env.SCANNER_SECURITY_HOLD === "true") return "disabled";
   if (env.SCAN_WORKER_URL?.trim()) return "proxy";
   if (env.SCAN_WORKER_ENABLED === "true" && env.SCAN_WORKER_TOKEN?.trim()) return "worker";
   // Preview mode uses our existing axe-core engine with a hosted Chromium,

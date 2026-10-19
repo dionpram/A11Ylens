@@ -15,6 +15,18 @@ test('scans are disabled in production until a worker is explicitly configured',
   assert.equal(scanMode({ NODE_ENV: 'production', PAGESPEED_API_ENABLED: 'true', SCAN_WORKER_URL: 'https://worker.example' }), 'proxy');
 });
 
+test('emergency security hold disables every scanner mode, including configured workers', () => {
+  for (const mode of [
+    { NODE_ENV:'production', MANAGED_BROWSER_ENABLED:'true', BROWSERLESS_TOKEN:'example' },
+    { NODE_ENV:'production', SCAN_WORKER_URL:'https://scanner.example', SCAN_WORKER_TOKEN:token },
+    { NODE_ENV:'production', SCAN_WORKER_ENABLED:'true', SCAN_WORKER_TOKEN:token },
+    { NODE_ENV:'production', PAGESPEED_API_ENABLED:'true' },
+    { NODE_ENV:'development', ALLOW_LOCAL_SCANS:'true' },
+  ]) {
+    assert.equal(scanMode({...mode, SCANNER_SECURITY_HOLD:'true'}), 'disabled');
+  }
+});
+
 test('worker requires exact long shared token', () => {
   assert.equal(authenticateWorker(token, token), true);
   assert.equal(authenticateWorker('bad', token), false);
