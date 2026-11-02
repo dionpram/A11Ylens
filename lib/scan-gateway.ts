@@ -94,7 +94,7 @@ export function managedBetaRequestPermitted(input: string, navigation: boolean, 
 export function allowAnyPublicBetaHost(env: NodeJS.ProcessEnv = process.env): boolean {
   return env.SCAN_BETA_ANY_PUBLIC_HOSTS === "true"
     && env.VERCEL_ENV === "preview"
-    && env.VERCEL_GIT_COMMIT_REF === "remote-browser-beta"
+    && ["remote-browser-beta", "stitch-ui-redesign"].includes(env.VERCEL_GIT_COMMIT_REF || "")
     && env.MANAGED_BROWSER_ENABLED === "true"
     && env.SCANNER_SECURITY_HOLD !== "true";
 }
