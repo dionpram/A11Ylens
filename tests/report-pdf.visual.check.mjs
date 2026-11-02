@@ -43,7 +43,18 @@ try {
   const match=meta.match(/^Pages:\s+(\d+)/m);
   assert.ok(match,"PDF page count missing");
   assert.ok(Number(match[1])>=2&&Number(match[1])<=14,"Unexpected PDF length: "+match[1]);
-  console.log("PDF EXPORT PASS: "+match[1]+" A4 pages; summary, priorities, findings, passed checks, review and method present.");
+  const pages=Array.from({length:Number(match[1])},(_,i)=>
+    execFileSync("pdftotext",["-f",String(i+1),"-l",String(i+1),"artifacts/a11ylens-sample-report.pdf","-"],{encoding:"utf8"})
+  );
+  for(const [kicker,title] of [
+    ["03 / ACTIONABLE FINDINGS","What needs fixing"],
+    ["05 / REQUIRES HUMAN JUDGMENT","What needs review"]
+  ]) {
+    const page=pages.find(pageText=>pageText.includes(kicker));
+    assert.ok(page&&page.includes(title),"Section label was orphaned from heading: "+kicker);
+  }
+  assert.ok(pages.at(-1)?.trim().length>300,"The last page contains only a stray footer or orphan content.");
+  console.log("PDF EXPORT PASS: "+match[1]+" A4 pages; no orphan headings or footer-only page.");
 } finally {
   if(browser)await browser.close().catch(()=>{});
   server.kill("SIGTERM");
