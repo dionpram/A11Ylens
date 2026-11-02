@@ -478,3 +478,11 @@
 .stitch-info-content .method-step{margin-bottom:14px;border-radius:14px;}
 .stitch-info-content .method-step:last-child{margin-bottom:0;}
 }
+
+/* White surfaces for independent audit cards. */
+@media screen {
+  .stitch-engine-grid article,
+  .stitch-info-content .method-step {
+    background: #fff;
+  }
+}
