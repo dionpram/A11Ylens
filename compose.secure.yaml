@@ -15,18 +15,21 @@ services:
       SCAN_BUDGET_PATH: "/state/scans.json"
       SCAN_DAILY_LIMIT: "30"
       DEBUG: "${PW_BROWSER_DEBUG:-}"
+      HOME: "/tmp"
+      XDG_CACHE_HOME: "/tmp/.cache"
+      XDG_CONFIG_HOME: "/tmp/.config"
     networks: [private_scan]
     volumes: [scan_state:/state]
     depends_on: [egress]
     read_only: true
     tmpfs:
-      - /tmp:size=256m,mode=1777
+      - /tmp:size=384m,mode=1777
       - /app/.next/cache:size=32m,mode=1777
-    shm_size: "256mb"
+    shm_size: "512mb"
     cap_drop: ["ALL"]
     security_opt: ["no-new-privileges:true"]
-    pids_limit: 96
-    mem_limit: 1024m
+    pids_limit: 256
+    mem_limit: 1536m
     cpus: 1.5
     restart: "no"
   egress:
