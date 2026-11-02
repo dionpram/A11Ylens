@@ -12,7 +12,7 @@
     "postbuild": "node tests/managed-browser-smoke.check.mjs && node tests/scan-api.remote.check.mjs"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "24.x"
   },
   "dependencies": {
     "@axe-core/playwright": "4.13.0",
