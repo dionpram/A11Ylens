@@ -177,3 +177,64 @@
      heading and scope warnings together instead of splitting after the title. */
   .pdf-report .pdf-method { break-before:page !important; page-break-before:always !important; }
 }
+
+
+/* Stitch-inspired Warm Tech Artisan visual layer.
+   Screen-only: keep the independently typeset print/PDF report untouched.
+   Adapted from the user's exported Stitch DESIGN.md; no mock statistics or fake features. */
+@media screen {
+  :root {
+    --ink:#1f2328;--muted:#656d76;--line:#d0d7de;--cream:#f8f9fb;
+    --paper:#ffffff;--coral:#b6241d;--coral-hover:#91251f;
+    --dark:#1f2328;--green:#1a7f37;--shallow-green:#dafbe1;
+    --shallow-red:#fff1f0;--blue:#0969da;
+    --shadow:0 8px 28px rgba(31,35,40,.045);
+  }
+  body {font-family:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .header {background:#fff;border-bottom:1px solid #d0d7de;}
+  .nav-inner {height:68px;}
+  .brand-lockup {letter-spacing:-.055em;font-size:20px;}
+  .nav-links {gap:24px;color:#59636e;}
+  .button {border-radius:9px;box-shadow:none;min-height:44px;}
+  .button-coral {background:#b6241d;color:#fff;}
+  .button-coral:hover {background:#91251f;}
+  .button-dark {background:#1f2328;}
+  .hero {background:#fff;border-bottom:1px solid #d0d7de;}
+  .hero-glow,.decor-dot {display:none;}
+  .hero-grid {grid-template-columns:minmax(0,1fr);min-height:auto;max-width:1000px;gap:35px;padding-top:76px;padding-bottom:84px;text-align:center;}
+  .hero-copy {max-width:800px;margin:0 auto;}
+  .announcement {background:#f6f8fa;color:#656d76;border:1px solid #d0d7de;border-radius:7px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.01em;font-weight:550;}
+  .announcement-dot {background:#2da44e;}
+  .hero h1 {max-width:770px;margin:0 auto;font-size:clamp(40px,5.25vw,66px);font-weight:750;line-height:1.1;letter-spacing:-.055em;}
+  .hero h1 em,.why-intro h2 em,.visual-feature h2 em {color:#b6241d;text-decoration:underline;text-decoration-color:#f2b3ab;text-underline-offset:5px;}
+  .hero-subtitle {max-width:650px;margin:20px auto 28px;font-size:16px;line-height:1.65;color:#656d76;}
+  .url-form {max-width:670px;margin:0 auto;}
+  .url-box {min-height:62px;border:1px solid #b7c0c8;border-radius:32px;padding:7px 7px 7px 20px;box-shadow:0 4px 14px rgba(31,35,40,.035);}
+  .url-box:focus-within {outline:3px solid #a7c7ef;outline-offset:2px;}
+  .url-box input {font-size:14px;outline:0;}
+  .url-box .button {border-radius:24px;min-height:46px;}
+  .hero-micro {justify-content:center;gap:19px;margin:18px 0 17px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;}
+  .sample-link {color:#b6241d;}
+  .hero-right {min-height:auto;margin:auto;width:min(100%,520px);}
+  .sample-card {width:100%;transform:none;border:1px solid #d0d7de;border-radius:15px;box-shadow:0 9px 28px rgba(31,35,40,.06);text-align:left;}
+  .sample-floating {right:12px;bottom:-19px;transform:none;border-color:#d0d7de;}
+  .section-how,.section-why {background:#f8f9fb;padding:84px 0;}
+  .section-how {border-bottom:1px solid #d0d7de;}
+  .section-kicker,.eyebrow {font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.11em;color:#b6241d;}
+  .step,.why-tile,.overview-card,.rule-card,.visual-preview,.metric {border:1px solid #d0d7de;border-radius:12px;box-shadow:none;}
+  .step {background:#fff;min-height:250px;}
+  .step-icon {border-radius:10px;background:#fff1f0;color:#b6241d;}
+  .results-shell {background:#f8f9fb;}
+  .severity,.wcag-pill,.count-pill {border-radius:5px;}
+  .code-wrap,.node-row pre,.preview-shot {border-radius:8px;}
+  .code-wrap code,.node-row code,.node-row pre,.preview-detail code {font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;}
+  .error-message {text-align:left;background:#fff1f0;border:1px solid #f2c1bb;padding:12px;border-radius:8px;margin:12px auto;}
+}
+@media screen and (max-width:760px){
+  .hero-grid{padding-top:55px;padding-bottom:64px;gap:28px;}
+  .hero h1{font-size:clamp(35px,9vw,51px);}
+  .sample-floating{position:static;margin-top:12px;}
+  .url-box{border-radius:17px;}
+  .url-box .button{border-radius:11px;}
+  .section-how,.section-why{padding:60px 0;}
+}
