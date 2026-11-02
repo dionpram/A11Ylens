@@ -547,3 +547,13 @@
 .stitch-diff-stage .stitch-demo-meta{color:#59636e;font:11px ui-monospace,SFMono-Regular,Consolas,monospace;margin-top:1px;}
 }
 @media screen and (max-width:730px){.stitch-diff-stage{min-height:225px;padding:19px;}.stitch-demo-heading{font-size:17px;}}
+
+
+/* Deliberately simple non-interactive text contrast illustration. */
+@media screen {
+.stitch-diff-stage{min-height:175px;padding:25px 18px;}
+.stitch-demo-preview{align-items:center;text-align:center;gap:12px;}
+.stitch-simple-sample{font-size:18px!important;font-weight:600;line-height:1.45!important;margin:0!important;font-family:inherit!important;}
+.stitch-diff-stage .stitch-simple-before{color:#929292;}
+.stitch-diff-stage .stitch-simple-after{color:#595959;}
+}
