@@ -162,3 +162,12 @@
   .pdf-end p { margin:1mm 0; font-size:8pt; }
   .pdf-end small { font-size:7pt; color:#75877c; }
 }
+
+/* Print pagination refinements verified against the sample A4 export. */
+@media print {
+  .pdf-report .pdf-section > .pdf-kicker { break-after:avoid-page !important; page-break-after:avoid !important; }
+  .pdf-report .pdf-details { break-before:page !important; page-break-before:always !important; }
+  .pdf-report .pdf-finding { break-inside:avoid-page !important; page-break-inside:avoid !important; }
+  /* The A4 margin-box already provides a branded page footer; avoid an orphan final page. */
+  .pdf-report .pdf-end { display:none !important; }
+}
