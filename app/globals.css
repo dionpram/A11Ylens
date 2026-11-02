@@ -411,3 +411,58 @@
 .stitch-footer-bottom{padding-top:24px;padding-bottom:27px;}
 }
 @media screen and (max-width:760px){.stitch-footer-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;}.stitch-footer-identity{grid-column:1/-1;}}
+
+
+/* Shared Stitch design treatment for How it works, Methodology, About, FAQ, Privacy */
+@media screen {
+.stitch-info-main{background:#f8f9fb;color:#1f2328;}
+.stitch-info-hero{background:#fff;border-bottom:1px solid #d4dce5;text-align:center;}
+.stitch-info-hero .info-hero-inner{padding:71px 24px 75px;max-width:940px;}
+.stitch-info-hero .stitch-terminal-label{color:#0969da;background:#f6f8fa;border:1px solid #d4dce5;font-size:11px;letter-spacing:.06em;}
+.stitch-info-hero h1{font-size:clamp(36px,5vw,62px);line-height:1.1;letter-spacing:-.06em;margin:19px auto 0;max-width:830px;}
+.stitch-info-hero p{color:#687481;font-size:16px;line-height:1.7;max-width:670px;margin:18px auto 0;}
+.stitch-info-content{padding-top:66px;padding-bottom:42px;}
+.stitch-info-content .info-section{padding-bottom:66px;}
+.stitch-info-content .info-section-divider{border-color:#dce3e9;padding-top:61px;}
+.stitch-info-content .info-split-heading{gap:26px;}
+.stitch-info-content .info-split-heading h2,.stitch-info-content .about-statement h2,.stitch-info-content .info-feature-panel h2,.stitch-info-content .faq-layout aside h2{font-size:clamp(28px,3.2vw,41px);line-height:1.2;letter-spacing:-.045em;}
+.stitch-info-content p{color:#687481;}
+.stitch-info-content .info-split-heading p{color:#687481;font-size:14px;line-height:1.65;}
+.stitch-info-content :is(.journey-card,.outcome-grid article,.method-limitations article,.values-cards article,.status-guide-row,.method-step,.score-explainer,.privacy-section,.privacy-banner,.about-statement,.info-preview-example){background:#fff;border:1px solid #d4dce5;border-radius:15px;box-shadow:none;}
+.stitch-info-content :is(.journey-card,.outcome-grid article,.method-limitations article,.values-cards article){padding:25px;}
+.stitch-info-content :is(.journey-card h3,.outcome-grid h3,.method-limitations h3,.values-cards h3,.method-step h3,.status-guide h3){color:#24292f;}
+.stitch-info-content :is(.journey-icon,.values-card-icon,.tile-icon){border-radius:10px;}
+.stitch-info-content .info-feature-panel{background:#fff;border:1px solid #d4dce5;border-radius:20px;padding:35px;box-shadow:none;}
+.stitch-info-content .info-preview-example{background:#f6f8fa;}
+.stitch-info-content .info-feature-panel a,.stitch-info-content .info-text-link,.stitch-info-content .info-external-link{color:#0969da;}
+.stitch-info-content .method-step{padding:20px 23px;gap:18px;}
+.stitch-info-content .method-step>span{color:#0969da;background:#e8f3ff;border-radius:8px;}
+.stitch-info-content .status-guide-row{padding:20px 24px;}
+.stitch-info-content .score-explainer{padding:30px;}
+.stitch-info-content .score-example{border:1px solid #d4dce5;border-radius:12px;background:#f6f8fa;}
+.stitch-info-content .about-statement{padding:36px;}
+.stitch-info-content .privacy-layout{gap:17px;}
+.stitch-info-content .privacy-section,.stitch-info-content .privacy-banner{padding:28px;}
+.stitch-info-content .privacy-banner{background:#fff8ec;border-color:#e8d3a8;}
+.stitch-info-content .faq-layout{gap:34px;}
+.stitch-info-content .faq-group h2{font-size:17px;letter-spacing:-.02em;}
+.stitch-info-content .faq-item{background:#fff;border:1px solid #d4dce5;border-radius:13px;overflow:hidden;margin-top:10px;}
+.stitch-info-content .faq-item summary{padding:18px 20px;color:#24292f;font-weight:650;}
+.stitch-info-content .faq-item p{padding:3px 20px 20px;color:#687481;}
+.stitch-info-content .faq-item summary span{color:#65717e;}
+.stitch-info-final{padding:0 0 75px;background:#f8f9fb;border:0;}
+.stitch-info-final-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:43px 24px;background:radial-gradient(ellipse at 50% 40%,#fff0ef,#fff 68%);border:1px solid #d4dce5;border-radius:23px;}
+.stitch-info-final-card .stitch-bottom-icon{margin-bottom:2px;}
+.stitch-info-final-card h2{font-size:clamp(28px,3.7vw,40px);letter-spacing:-.045em;}
+.stitch-info-final-card p{font-size:14px;color:#687481;margin:0 auto 8px;}
+.stitch-info-final-card .button{border-radius:999px;min-height:44px;}
+.stitch-info-final-card small{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#687481;margin-top:8px;}
+}
+@media screen and (max-width:760px){
+.stitch-info-hero .info-hero-inner{padding:53px 20px 58px;}
+.stitch-info-content{padding-top:40px;}
+.stitch-info-content .info-section{padding-bottom:45px;}
+.stitch-info-content .info-section-divider{padding-top:43px;}
+.stitch-info-content .info-feature-panel,.stitch-info-content .about-statement{padding:23px;}
+.stitch-info-final-card{padding:34px 19px;}
+}
