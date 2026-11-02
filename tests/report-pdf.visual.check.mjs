@@ -19,7 +19,7 @@ try {
   const page=await browser.newPage({viewport:{width:1280,height:900}});
   await page.goto(base,{waitUntil:"domcontentloaded"});
   await page.getByRole("button",{name:/Take a look at a sample report/i}).click();
-  await page.locator(".pdf-cover").waitFor();
+  await page.locator(".pdf-cover").waitFor({state:"attached"});
   assert.equal(await page.locator(".pdf-report").count(),1);
   assert.equal(await page.locator(".pdf-priority").count(),3);
   assert.ok(await page.locator(".pdf-finding").count()>=3);
