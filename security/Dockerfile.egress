@@ -1,0 +1,8 @@
+FROM node:24-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+COPY lib/safety.ts /app/lib/safety.ts
+COPY security/egress-proxy.mjs /app/security/egress-proxy.mjs
+USER node
+EXPOSE 3128
+CMD ["node", "/app/security/egress-proxy.mjs"]

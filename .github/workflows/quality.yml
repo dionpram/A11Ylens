@@ -22,6 +22,10 @@ jobs:
           node-version: '24'
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Validate isolated Docker Compose topology
+        env:
+          SCAN_WORKER_TOKEN: "ci-only-placeholder-12345678901234567890"
+        run: docker compose -f compose.secure.yaml config --quiet
       - name: Run unit tests
         run: npm test
       - name: Typecheck

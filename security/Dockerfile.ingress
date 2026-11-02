@@ -1,0 +1,7 @@
+FROM node:24-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+COPY security/local-ingress.mjs /app/security/local-ingress.mjs
+USER node
+EXPOSE 3002
+CMD ["node", "/app/security/local-ingress.mjs"]

@@ -15,7 +15,7 @@ RUN npm install --no-audit --no-fund
 RUN npx playwright install --with-deps chromium
 COPY . .
 RUN npm run build
-RUN mkdir -p /app/.next && chown -R node:node /app /ms-playwright
+RUN mkdir -p /app/.next /state && chown -R node:node /app /ms-playwright /state
 USER node
 
 EXPOSE 3000

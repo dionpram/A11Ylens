@@ -1,6 +1,7 @@
 import { scanWebsite } from "@/lib/scanner";
 import { scanWithPageSpeed } from "@/lib/pagespeed";
 import { authenticateWorker, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
+import { reserveScanSlot, opaqueVisitorId } from "@/lib/worker-budget.mjs";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -14,6 +15,9 @@ const fail = (error: string, status: number) => Response.json({ error }, { statu
 
 export async function POST(request: Request) {
   const mode = scanMode();
+  if (process.env.SCANNER_SECURITY_HOLD === "true") {
+    return Response.json({ error: "Scanning is paused for security verification.", code: "SCANNER_SECURITY_HOLD" }, { status: 503, headers: noStore });
+  }
   if (mode === "disabled") return fail("Scanning is not configured on this preview. Try the sample report for now.", 503);
 
   // The browser-worker endpoint is never usable without a long shared secret.
@@ -52,7 +56,14 @@ export async function POST(request: Request) {
       const endpoint = workerEndpoint(process.env.SCAN_WORKER_URL!);
       const result = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-a11ylens-worker-token": process.env.SCAN_WORKER_TOKEN },
+        headers: {
+          "Content-Type": "application/json",
+          "x-a11ylens-worker-token": process.env.SCAN_WORKER_TOKEN,
+          "x-a11ylens-visitor-id": opaqueVisitorId(
+            request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0] || "anonymous",
+            process.env.SCAN_WORKER_TOKEN,
+          ),
+        },
         body: JSON.stringify({ url }),
         cache: "no-store",
         signal: AbortSignal.timeout(55_000),
@@ -83,6 +94,31 @@ export async function POST(request: Request) {
   }
 
   if (scanning) return fail("The scanner is busy. Please try again shortly.", 503);
+  // Reserve persistent hard daily budget on the single isolated worker.
+  // Authentication has already passed. No external domain allowlist here:
+  // destination safety is enforced by the restricted egress proxy.
+  if (mode === "worker") {
+    if (!process.env.SECURE_EGRESS_PROXY_URL || !process.env.SCAN_BUDGET_PATH) {
+      return fail("Secure worker limits are not configured.", 503);
+    }
+    try {
+      const visitor = request.headers.get("x-a11ylens-visitor-id") || "anonymous";
+      const configuredLimit = Number(process.env.SCAN_DAILY_LIMIT ?? "30");
+      if (!Number.isInteger(configuredLimit) || configuredLimit < 1 || configuredLimit > 30) {
+        return fail("The daily scanner quota is invalid or exceeds the hard maximum.", 503);
+      }
+      const limit = configuredLimit;
+      const budget = reserveScanSlot({ path: process.env.SCAN_BUDGET_PATH, visitor, dailyLimit: limit });
+      if (!budget.allowed) {
+        return Response.json({
+          error: budget.reason === "DAILY_LIMIT" ? "The scanner has reached today's beta limit. Please try tomorrow." : "You've reached the beta scan limit. Please try later.",
+          code: budget.reason,
+        }, { status: 429, headers: { ...noStore, "Retry-After": budget.reason === "DAILY_LIMIT" ? "3600" : "600" } });
+      }
+    } catch {
+      return fail("The scanner cannot verify its daily safety budget.", 503);
+    }
+  }
   scanning = true;
   try {
     const report = await scanWebsite(url);
