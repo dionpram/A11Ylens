@@ -3,12 +3,13 @@ import Logo from "@/components/Logo";
 import BuyMeACoffeeLink from "@/components/BuyMeACoffeeLink";
 
 export default function SiteFooter() {
-  return <footer className="footer site-footer screen-only">
-    <div className="container footer-expanded">
-      <div className="footer-brand"><Link href="/" aria-label="Access Lens home"><Logo /></Link><p>A little more accessible, every day.</p><span>One page at a time. Free, without an account.</span></div>
-      <nav aria-label="Explore"><strong>Explore</strong><Link href="/">Check a page</Link><Link href="/how-it-works">How it works</Link><Link href="/faq">Frequently asked questions</Link></nav>
-      <nav aria-label="Learn"><strong>Learn</strong><Link href="/methodology">Our methodology</Link><Link href="/about">About the project</Link><Link href="/privacy">Privacy &amp; data</Link><BuyMeACoffeeLink className="footer-coffee">Buy Me a Coffee</BuyMeACoffeeLink></nav>
+  return <footer className="stitch-site-footer screen-only">
+    <div className="container stitch-footer-main">
+      <div className="stitch-footer-identity"><Link href="/" aria-label="A11Ylens home"><Logo /></Link><p>Understand what works. Fix what doesn't.</p><span>Independent accessibility insights, one page at a time.</span></div>
+      <nav aria-label="Product links"><strong>PRODUCT</strong><Link href="/">Audit a page</Link><Link href="/how-it-works">How it works</Link><Link href="/faq">FAQ</Link></nav>
+      <nav aria-label="Information links"><strong>RESOURCES</strong><Link href="/methodology">Methodology</Link><Link href="/privacy">Privacy</Link><Link href="/about">About</Link></nav>
+      <nav aria-label="Project links"><strong>PROJECT</strong><a href="https://github.com/dionpram/A11Ylens" target="_blank" rel="noopener noreferrer">GitHub source</a><BuyMeACoffeeLink className="stitch-footer-support">Optional support</BuyMeACoffeeLink></nav>
     </div>
-    <div className="container footer-bottom"><span>© {new Date().getFullYear()} Access Lens · Independent project</span><span>Automated checks are not a certificate of WCAG conformance.</span></div>
+    <div className="container stitch-footer-bottom"><span>© {new Date().getFullYear()} A11Ylens · Independent project</span><span>Automated findings are not a WCAG compliance certificate.</span></div>
   </footer>;
 }
