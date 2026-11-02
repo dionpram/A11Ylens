@@ -486,3 +486,39 @@
     background: #fff;
   }
 }
+
+
+/* A11Ylens self-audit: contrast fixes confirmed by Chromium/axe-core baseline.
+   Preserve visual hierarchy while targeting >=4.5:1 for small text. */
+@media screen {
+  .stitch-field-label,
+  .stitch-standard-muted,
+  .stitch-try > span,
+  .stitch-trust small,
+  .stitch-footer-badge,
+  .stitch-repo-title,
+  .stitch-repo-details div span,
+  .stitch-example-tag,
+  .stitch-feature-disclaimer,
+  .stitch-diff-stage p,
+  .stitch-diff-code span,
+  .stitch-cap-card p,
+  .stitch-engine-grid p,
+  .stitch-engine-grid small,
+  .stitch-public-fine,
+  .stitch-public-copy p,
+  .stitch-bottom-note,
+  .stitch-footer-identity > span,
+  .stitch-footer-bottom,
+  .stitch-info-content .score-example p,
+  .stitch-info-content .score-example strong span,
+  .stitch-info-content .faq-layout aside p,
+  .stitch-info-content .journey-card-top > span,
+  .stitch-info-content .info-preview-example > span {
+    color:#58636e;
+  }
+  .stitch-info-content .preview-example-before {
+    background:#626262;
+    color:#fff;
+  }
+}
