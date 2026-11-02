@@ -522,3 +522,11 @@
     color:#fff;
   }
 }
+
+
+/* Final contrast refinements from the internal axe audit. */
+@media screen {
+  .stitch-diff-card .stitch-demo-fail { opacity:1; color:#59636e; }
+  .stitch-engine-heading > p { color:#58636e; }
+  .stitch-footer-brandline .stitch-footer-badge { color:#53606b; }
+}
