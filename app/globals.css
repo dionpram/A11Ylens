@@ -171,3 +171,9 @@
   /* The A4 margin-box already provides a branded page footer; avoid an orphan final page. */
   .pdf-report .pdf-end { display:none !important; }
 }
+
+@media print {
+  /* The methodology is a deliberately self-contained closing page; keep its
+     heading and scope warnings together instead of splitting after the title. */
+  .pdf-report .pdf-method { break-before:page !important; page-break-before:always !important; }
+}
