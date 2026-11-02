@@ -466,3 +466,15 @@
 .stitch-info-content .info-feature-panel,.stitch-info-content .about-statement{padding:23px;}
 .stitch-info-final-card{padding:34px 19px;}
 }
+
+
+/* Avoid card-within-card composition: section wrappers are layout-only.
+   Keep the actual information cards, dividers and their internal spacing. */
+@media screen {
+.stitch-engine-panel{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;}
+.stitch-engine-heading{margin-bottom:32px;}
+.stitch-engine-section{padding-top:30px;padding-bottom:76px;}
+.stitch-info-content .method-steps{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;overflow:visible;}
+.stitch-info-content .method-step{margin-bottom:14px;border-radius:14px;}
+.stitch-info-content .method-step:last-child{margin-bottom:0;}
+}
