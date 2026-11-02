@@ -564,3 +564,5 @@
   .stitch-hero .stitch-submit:hover:not(:disabled) { background:#2b3138; border-color:#2b3138; }
   .stitch-hero .stitch-submit:focus-visible { outline:3px solid #0969da; outline-offset:3px; }
 }
+
+@media screen { .scan-fallback-actions{display:block;margin-top:12px;font-size:13px;line-height:1.6;color:#782b23}.scan-fallback-button{display:inline-flex;align-items:center;gap:7px;margin:9px 0 0;background:#1f2328;color:white;border:1px solid #1f2328;padding:10px 14px;border-radius:10px;font-weight:650;font-size:12px}.scan-fallback-button:hover{background:#343b43}.scan-fallback-button:focus-visible{outline:3px solid #0969da;outline-offset:3px} }
