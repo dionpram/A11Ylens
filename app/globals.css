@@ -609,3 +609,30 @@
 .pdf-action,.pdf-explainer{background:#f6f8fa!important;border:1px solid #d4dce5!important;}
 .pdf-end{color:#53606b!important;border-top:1px solid #d4dce5!important;}
 }
+
+
+/* Accessible print cover: do not rely on background graphics or faded reversed text. */
+@media print {
+  @page { size:A4; margin:12mm 14mm; }
+  .pdf-cover {
+    min-height:245mm!important; padding:9mm 0 10mm!important;
+    border:0!important; border-top:4pt solid #1f2328!important;
+    border-radius:0!important; background:#fff!important; color:#1f2328!important;
+    justify-content:flex-start!important; box-shadow:none!important;
+  }
+  .pdf-cover-top {padding:4mm 0 5mm!important; border-bottom:1pt solid #b9c2cb!important; color:#1f2328!important;}
+  .pdf-cover-top strong {color:#1f2328!important;}
+  .pdf-cover-top > span:last-child {color:#46515d!important; font-size:7.5pt!important; letter-spacing:.5pt!important;}
+  .pdf-brand-mark{background:#1f2328!important;color:#fff!important;}
+  .pdf-brand-mark span{color:#fff!important;}
+  .pdf-cover-main{padding-top:31mm!important;}
+  .pdf-cover .pdf-kicker,.pdf-cover-main .pdf-kicker{color:#3c4955!important;font-size:9pt!important;letter-spacing:1pt!important;}
+  .pdf-cover-main h1{color:#1f2328!important;font-size:37pt!important;line-height:1.1!important;max-width:160mm;}
+  .pdf-cover-main > p:last-child{color:#3c4955!important;font-size:12pt!important;line-height:1.5!important;max-width:135mm;}
+  .pdf-cover-site{margin-top:27mm!important;padding:7mm!important;border:1pt solid #b9c2cb!important;border-left:4pt solid #1f2328!important;border-radius:0!important;background:#fff!important; color:#1f2328!important;}
+  .pdf-cover-site > span{color:#485460!important;font-size:8pt!important;}
+  .pdf-cover-site strong{color:#1f2328!important;font-size:17pt!important;}
+  .pdf-cover-site p{color:#33414e!important;font-size:10pt!important;overflow-wrap:anywhere!important;}
+  .pdf-cover-site small{color:#485460!important;font-size:8.5pt!important;}
+  .pdf-cover-footnote{color:#3c4955!important;margin-top:7mm!important;font-size:9pt!important;}
+}
