@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 export function GET() {
   const mode = scanMode();
   // Safe diagnostic metadata: no provider identifiers, tokens or user data.
+  // Preview capability is determined at request time by the branch-scoped environment.
   const scanAvailable = mode !== "disabled";
   const urlScope = mode === "managed-browser"
     ? (allowAnyPublicBetaHost() ? "public-https-preview" : "approved-beta-sites")
