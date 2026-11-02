@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 30
     env:
       SCAN_WORKER_TOKEN: "ci-local-token-only-123456789012345678901234567890"
+      PW_BROWSER_DEBUG: "pw:browser"
     steps:
       - uses: actions/checkout@v4
       - name: Confirm compose structure
@@ -55,9 +56,13 @@ jobs:
           assert.ok(typeof body.id==='string');
           console.log('PASS: isolated worker returned real axe-core findings for example.com');
           EOF
-      - name: Show sanitized service status on failure
+      - name: Inspect Chromium crash and container resource status on failure
         if: failure()
-        run: docker compose -f compose.secure.yaml ps
+        run: |
+          docker compose -f compose.secure.yaml ps
+          docker inspect a11ylens-secure-local-scanner-1 --format 'ExitCode={{.State.ExitCode}} OOMKilled={{.State.OOMKilled}} Running={{.State.Running}} Memory={{.HostConfig.Memory}} PidsLimit={{.HostConfig.PidsLimit}}' || true
+          # CI uses a disposable, non-secret token and example.com as test target.
+          docker compose -f compose.secure.yaml logs --no-color --tail=140 scanner | sed -E 's/(token|password|secret)=([^ ]+)/\1=REDACTED/g' || true
       - name: Always stop isolated workers
         if: always()
         run: docker compose -f compose.secure.yaml down --timeout 10

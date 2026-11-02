@@ -14,6 +14,7 @@ services:
       PAGESPEED_API_ENABLED: "false"
       SCAN_BUDGET_PATH: "/state/scans.json"
       SCAN_DAILY_LIMIT: "30"
+      DEBUG: "${PW_BROWSER_DEBUG:-}"
     networks: [private_scan]
     volumes: [scan_state:/state]
     depends_on: [egress]
