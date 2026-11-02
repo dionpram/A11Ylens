@@ -329,3 +329,71 @@
 .stitch-method-link{display:flex;justify-content:center;align-items:center;gap:6px;color:#0969da;font-weight:700;font-size:13px;margin-top:25px;}
 }
 @media screen and (max-width:730px){.stitch-diff-grid,.stitch-capability-grid,.stitch-engine-grid{grid-template-columns:1fr}.stitch-feature-head{flex-direction:column;align-items:flex-start}.stitch-feature-panel,.stitch-engine-panel{padding:19px}.stitch-showcase-section{padding-top:20px}.stitch-diff-card header{flex-wrap:wrap}.stitch-diff-card header span{margin-left:0}.stitch-cap-card,.stitch-engine-grid article{min-height:unset}}
+
+
+/* Stitch-inspired transparency, FAQ, final scan form, and footer */
+@media screen {
+.stitch-public-section,.stitch-faq-section,.stitch-bottom-section{background:#f8f9fb;}
+.stitch-public-section{padding:12px 0 54px;}
+.stitch-public-panel{background:#fff;border:1px solid #d4dce5;border-radius:23px;padding:35px;display:grid;grid-template-columns:1.45fr .8fr;align-items:center;gap:44px;}
+.stitch-public-kicker{color:#157d38;display:inline-flex;gap:9px;align-items:center;font:700 11px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.02em;}
+.stitch-public-copy h2{font-size:clamp(24px,3vw,34px);line-height:1.2;letter-spacing:-.045em;margin:16px 0 10px;}
+.stitch-public-copy p{max-width:630px;color:#67717e;font-size:15px;line-height:1.65;}
+.stitch-public-fine{display:block;margin-top:23px;color:#697682;font:11px ui-monospace,SFMono-Regular,Consolas,monospace;}
+.stitch-repo-card{background:#f6f8fa;border:1px solid #d4dce5;border-radius:13px;padding:17px;}
+.stitch-repo-title{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #e4e9ee;padding-bottom:12px;color:#5c6671;font:12px ui-monospace,SFMono-Regular,Consolas,monospace;}
+.stitch-repo-status{background:#dafbe1;color:#157d38;border-radius:5px;padding:4px 7px;font-size:10px;}
+.stitch-repo-details{display:grid;gap:11px;margin:14px 0;}
+.stitch-repo-details div{display:flex;justify-content:space-between;gap:12px;font:11px ui-monospace,SFMono-Regular,Consolas,monospace;}
+.stitch-repo-details div span{color:#697682}.stitch-repo-details strong{font-weight:650;text-align:right;}
+.stitch-repo-link{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border:1px solid #d4dce5;border-radius:8px;padding:11px;background:#fff;font-weight:700;font-size:12px;}
+.stitch-faq-section{padding:14px 0 76px;}
+.stitch-faq-heading{text-align:center;margin-bottom:30px;}
+.stitch-faq-heading h2{font-size:clamp(28px,3.5vw,40px);letter-spacing:-.05em;}
+.stitch-faq-list{max-width:865px;margin:auto;display:grid;gap:12px;}
+.stitch-faq-list details{background:#fff;border:1px solid #d4dce5;border-radius:15px;overflow:hidden;}
+.stitch-faq-list summary{padding:21px 24px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:18px;list-style:none;font-size:15px;font-weight:650;}
+.stitch-faq-list summary::-webkit-details-marker{display:none;}
+.stitch-faq-list summary span{display:flex;align-items:baseline;gap:14px;}
+.stitch-faq-list summary small{font:700 11px ui-monospace,SFMono-Regular,Consolas,monospace;color:#64707e;flex-shrink:0;}
+.stitch-faq-list summary svg{flex-shrink:0;color:#65717e;transition:transform .15s;}
+.stitch-faq-list details[open] summary svg{transform:rotate(90deg);}
+.stitch-faq-list details p{border-top:1px solid #edf0f3;padding:15px 24px 22px;color:#65717e;font-size:14px;line-height:1.7;}
+.stitch-faq-list details p a{color:#0969da;text-decoration:underline;}
+.stitch-faq-more{display:flex;justify-content:center;align-items:center;gap:7px;margin:20px auto 0;color:#0969da;font-size:13px;font-weight:700;}
+.stitch-bottom-section{padding:0 0 74px;}
+.stitch-bottom-panel{min-height:360px;border:1px solid #d4dce5;border-radius:24px;background:radial-gradient(ellipse at 50% 45%,#fff4f3,#fff 56%,#f8f9fb 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:45px 24px;}
+.stitch-bottom-icon{border:1px solid #e6d5d5;background:#fff7f6;color:#e54840;border-radius:14px;display:grid;place-items:center;width:52px;height:52px;margin-bottom:16px;}
+.stitch-bottom-panel h2{font-size:clamp(28px,4vw,42px);letter-spacing:-.05em;line-height:1.16;}
+.stitch-bottom-panel>p{color:#687481;font-size:15px;max-width:500px;margin:10px auto 22px;}
+.stitch-bottom-form{display:flex;align-items:center;gap:10px;border:1px solid #d1d9e1;border-radius:999px;padding:6px 6px 6px 18px;background:white;width:min(100%,545px);}
+.stitch-bottom-form:focus-within{outline:3px solid #afcfff;outline-offset:2px;}
+.stitch-bottom-form>svg{color:#67717e;flex-shrink:0;}
+.stitch-bottom-form input{min-width:0;flex:1;border:0;outline:0;font-size:13px;background:transparent;}
+.stitch-bottom-form input:focus-visible{outline:0;}
+.stitch-bottom-form button{border-radius:999px;min-height:42px;font-size:12px;}
+.stitch-bottom-note{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin-top:16px;color:#687481;font:11px ui-monospace,SFMono-Regular,Consolas,monospace;}
+.stitch-bottom-sample{background:none;border:0;color:#0969da;text-decoration:underline;font-size:12px;margin-top:14px;}
+.stitch-bottom-error{color:#a91c24;margin-top:13px!important;font-size:13px!important;}
+.stitch-site-footer{background:#fff;border-top:1px solid #d4dce5;color:#24292f;}
+.stitch-footer-main{padding-top:47px;padding-bottom:47px;display:grid;grid-template-columns:2.15fr repeat(3,1fr);gap:33px;}
+.stitch-footer-identity p{font-size:14px;font-weight:650;margin-top:16px;}
+.stitch-footer-identity span{font-size:12px;color:#687481;}
+.stitch-footer-main nav{display:flex;flex-direction:column;align-items:flex-start;gap:13px;font-size:12px;}
+.stitch-footer-main nav strong{font:700 11px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em;color:#687481;margin-bottom:3px;}
+.stitch-footer-main nav a{color:#4d5965;text-decoration:none;}.stitch-footer-main nav a:hover{text-decoration:underline;color:#0969da;}
+.stitch-footer-bottom{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid #e7ebef;padding-top:19px;padding-bottom:23px;color:#687481;font:11px ui-monospace,SFMono-Regular,Consolas,monospace;}
+}
+@media screen and (max-width:760px){
+.stitch-public-panel{grid-template-columns:1fr;gap:23px;padding:22px;}
+.stitch-faq-section{padding-bottom:48px;}
+.stitch-faq-list summary{padding:17px;font-size:13px;}.stitch-faq-list details p{padding:13px 17px 18px;}
+.stitch-footer-main{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px;}
+.stitch-footer-identity{grid-column:1/-1;}
+}
+@media screen and (max-width:490px){
+.stitch-bottom-form{flex-wrap:wrap;border-radius:17px;padding:12px;}
+.stitch-bottom-form input{flex-basis:calc(100% - 36px);}
+.stitch-bottom-form button{width:100%;border-radius:10px;}
+.stitch-public-fine{line-height:1.6;}.stitch-repo-details div{font-size:10px;}
+}
