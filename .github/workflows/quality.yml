@@ -2,7 +2,7 @@ name: Quality checks
 
 on:
   push:
-    branches: [main]
+    branches: [main, remote-browser-beta]
   pull_request:
     branches: [main]
 
@@ -34,3 +34,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify real scan against controlled fixture
         run: npm run test:e2e
+      - name: Verify redesigned A4 PDF export
+        run: node tests/report-pdf.visual.check.mjs
+      - name: Save sample report for visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11ylens-pdf-preview
+          path: artifacts/a11ylens-sample-report.pdf
+          if-no-files-found: ignore
