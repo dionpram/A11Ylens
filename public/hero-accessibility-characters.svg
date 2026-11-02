@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" role="img" aria-label="Friendly colorful characters building a bridge"><g stroke="#242424" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+<path fill="#ffcf59" d="M18 335h268l-16-73H58zM472 335h270l-38-73H491z"/>
+<path fill="#f15b47" d="M230 263a151 151 0 0 1 302 0h-95a56 56 0 0 0-112 0z"/>
+<g fill="#f15b47"><path d="M113 187a88 88 0 0 1 51-115l24 48a34 34 0 0 0-18 43z"/><path d="M191 102a88 88 0 0 1 77 78l-53 2a35 35 0 0 0-30-31z"/><path d="M130 208a90 90 0 0 0 99 8l-25-46a35 35 0 0 1-39-5z"/></g>
+<path fill="#ffca57" d="M312 152V94h57V57h57V23h73v129z"/>
+<path fill="#aad7fb" d="M554 236a97 97 0 0 1 194 0h-72a25 25 0 0 0-50 0z"/>
+<g fill="none"><path d="M348 104q12-15 24 0m38-34q12-15 24 0m24 4q12-15 24 0m-44 24q18 21 36 0"/><path d="M124 151q8-11 15 0m29-13q8-11 15 0m-44 37q23 24 45-1"/><path d="M607 188q8-11 16 0m47-25 8-10m-27 42q20 18 36-1"/><path d="M391 157l-26 31m107-34 26 33m-315 31-27 40m30-41 28 42m415-23 19 27m48-27 22 27"/></g>
+<g fill="#242424"><circle cx="370" cy="189" r="11"/><circle cx="500" cy="189" r="11"/><circle cx="162" cy="255" r="10"/><circle cx="212" cy="259" r="10"/><circle cx="648" cy="266" r="10"/><circle cx="718" cy="266" r="10"/></g></g>
+<g stroke="#222" stroke-width="7" stroke-linecap="round"><path d="M92 70 81 49m37 6-3-25m25 36 16-22M344 26l-16-14m56 2 0-13M716 112l21-12"/></g>
+<path d="m557 27 13 27 30 5-22 21 5 30-26-14-27 14 5-30-22-21 31-5z" fill="#ffd051" stroke="#242424" stroke-width="5" stroke-linejoin="round"/></svg>
