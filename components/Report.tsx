@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, ChevronDown, ChevronUp, CircleAlert, Clipboard, Coffee, Download, ExternalLink, FileCheck2, Info, ListFilter, RefreshCw, ShieldCheck, Sparkles, XCircle } from "lucide-react";
 import type { Rule, ScanReport, ContrastPreview } from "@/lib/types";
 import BuyMeACoffeeLink from "@/components/BuyMeACoffeeLink";
+import PrintableReport from "@/components/PrintableReport";
 
 const wcagText = (tag: string) => {
   const clean = tag.replace("wcag", "");
@@ -82,19 +83,6 @@ function RulesList({ rules, type }: { rules: Rule[]; type: "pass" | "review" }) 
   return <div className="checks-list">{shown.map(rule => <div className="check-row" key={rule.id}><div className={`check-icon ${type}`} >{type === "pass" ? <Check size={17}/> : <Info size={17}/>}</div><div className="check-content"><strong>{rule.title}{rule.partiallyPassing && <span className="partial-pass"> · Some elements also failed this rule</span>}</strong><p>{rule.description || `${rule.count} automated test ${rule.count === 1 ? "instance" : "instances"} recorded`}</p></div><span className="count-pill">{rule.count}</span></div>)}{rules.length > 12 && <button className="text-button" onClick={() => setShowAll(v => !v)}>{showAll ? "Show fewer" : `Show all ${rules.length} checks`} <ChevronDown size={15}/></button>}{!rules.length && <p className="muted empty-results">No {type === "pass" ? "passing rules" : "inconclusive rules"} were recorded for this scan.</p>}</div>;
 }
 
-function PrintableReport({ report }: { report: ScanReport }) {
-  return <article className="print-only printable-report">
-    <h1>Access Lens · Automated accessibility assessment</h1><p>{report.finalUrl}</p>
-    <p>{new Date(report.scannedAt).toLocaleString()} · {report.environment.viewport} · {report.environment.engine}</p>
-    {report.demo && <p><strong>DEMONSTRATION DATA · NOT AN ACTUAL SCAN</strong></p>}
-    <h2>Summary</h2><p>{report.environment.engine.startsWith("Lighthouse") ? "Lighthouse accessibility score" : "Automated rule pass rate"}: <strong>{report.score ?? "Not available"}/100</strong></p><p>{report.scoreMethod}</p>
-    <p>{report.counts.failedRules} failed rules · {report.counts.passedRules} passed rules · {report.counts.reviewRules} review items · {report.counts.notApplicableRules} inapplicable rules</p>
-    <h2>Detected failures</h2>{report.failures.map(r => <section key={r.id}><h3>{r.title} ({r.impact})</h3><p>{r.description}</p>{r.recommendation && <p><strong>Suggested next step:</strong> {r.recommendation}</p>}<p>Instances: {r.count} · {r.wcag.join(", ")}</p>{r.nodes?.map((n,i)=><div key={i}><code>{n.target}</code><p>{n.summary}</p></div>)}{report.previews.filter(v=>v.ruleId===r.id).map((p,i)=><div key={i}><h4>Visual suggestion</h4><div className="print-preview-grid"><div><p>Before · {p.beforeRatio}:1</p><img src={p.beforeImage} alt="Original element"/></div><div><p>After · {p.afterRatio}:1</p><img src={p.afterImage} alt="Suggested revision"/></div></div><pre>{p.css}</pre></div>)}</section>)}
-    <h2>Passing automated rule instances</h2>{report.passes.map(r=><p key={r.id}><strong>{r.title}</strong> · {r.count} passing instances {r.partiallyPassing ? "(other elements failed the same rule)" : ""}</p>)}
-    <h2>Inconclusive checks</h2>{report.review.map(r=><p key={r.id}><strong>{r.title}</strong> · {r.count} test instances</p>)}
-    <h2>Method and limitations</h2>{report.notes.map((note,i)=><p key={i}>{note}</p>)}<p>Not a WCAG conformance certificate or legal opinion. Exported by browser Print / Save as PDF.</p>
-  </article>;
-}
 
 export default function Report({ report, onReset }: { report: ScanReport; onReset: () => void }) {
   const [tab, setTab] = useState<"failed" | "passed" | "review">("failed");
