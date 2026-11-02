@@ -10,5 +10,5 @@ export function GET() {
   const urlScope = mode === "managed-browser"
     ? (allowAnyPublicBetaHost() ? "public-https-preview" : "approved-beta-sites")
     : scanAvailable ? "configured-scanner" : "paused";
-  return Response.json({ status: "ok", scanAvailable, urlScope }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({ status: "ok", scanAvailable, urlScope, scanEngine: mode === "pagespeed" ? "lighthouse" : mode === "managed-browser" ? "axe-core" : "unavailable" }, { headers: { "Cache-Control": "no-store" } });
 }
