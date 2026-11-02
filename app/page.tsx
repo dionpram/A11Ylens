@@ -107,7 +107,7 @@ export default function Home() {
     {report ? <main id="main-content"><Report report={report} onReset={reset}/></main> : <>
       <main id="main-content" className="screen-only">
         <section className="hero stitch-hero"><div className="container stitch-hero-inner">
-          <div className="stitch-hero-illustration" aria-hidden="true"><img src="/hero-accessibility-characters.svg" alt="" width="420" height="210"/></div><div className="stitch-terminal-label"><span aria-hidden="true" className="stitch-prompt">$</span><span>{scanEngine === "lighthouse" ? "Lighthouse via Google" : "axe-core + Chromium"}</span><span className="stitch-terminal-separator">/</span><span>one-page accessibility audit</span></div>
+          <div className="stitch-terminal-label"><span aria-hidden="true" className="stitch-prompt">$</span><span>{scanEngine === "lighthouse" ? "Lighthouse via Google" : "axe-core + Chromium"}</span><span className="stitch-terminal-separator">/</span><span>one-page accessibility audit</span></div>
           <h1>Understand what’s<br/>working.<br/><em>Fix what isn’t.</em></h1>
           <p className="hero-subtitle">Automated accessibility checks with clear findings, practical next steps, and visual contrast suggestions where supported.</p>
           <form className="url-form" onSubmit={scan}>
