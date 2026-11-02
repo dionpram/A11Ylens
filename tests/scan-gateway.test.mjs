@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { authenticateWorker, scanMode, workerEndpoint, isAllowedBetaUrl, managedBetaRequestPermitted, readLimitedJson } from '../lib/scan-gateway.ts';
+import { authenticateWorker, scanMode, workerEndpoint, isAllowedBetaUrl, allowAnyPublicBetaHost, managedBetaRequestPermitted, readLimitedJson } from '../lib/scan-gateway.ts';
 import { browserlessEndpoint } from '../lib/browserless.ts';
 
 const token = 'a-secure-32-character-minimum-scanner-token-123';
@@ -95,4 +95,24 @@ test('managed browser only permits approved HTTPS navigations and redirects', ()
   assert.equal(managedBetaRequestPermitted('https://cdn.example.net/css', false, hosts), true);
   assert.equal(managedBetaRequestPermitted('http://cdn.example.net/css', false, hosts), false);
   assert.equal(managedBetaRequestPermitted('https://evil.example/', true, ''), false);
+});
+ 
+test('any-public-host beta switch is only available in the protected preview branch',()=>{
+  const base={SCAN_BETA_ANY_PUBLIC_HOSTS:'true',VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:'remote-browser-beta',MANAGED_BROWSER_ENABLED:'true'};
+  assert.equal(allowAnyPublicBetaHost(base),true);
+  for(const override of [
+    {VERCEL_ENV:'production'},
+    {VERCEL_GIT_COMMIT_REF:'main'},
+    {MANAGED_BROWSER_ENABLED:'false'},
+    {SCANNER_SECURITY_HOLD:'true'},
+    {SCAN_BETA_ANY_PUBLIC_HOSTS:'false'},
+  ])assert.equal(allowAnyPublicBetaHost({...base,...override}),false);
+});
+test('expanded private beta permits new HTTPS domains but not alternate schemes',()=>{
+  const hosts='pramadion.com,example.com';
+  assert.equal(managedBetaRequestPermitted('https://new-site.example/some/very/long/path?q=1',true,hosts,true),true);
+  assert.equal(managedBetaRequestPermitted('https://example.org/',true,hosts,false),false);
+  for(const invalid of ['http://example.org/','ftp://example.org/','ws://example.org/','file:///etc/passwd','https://user:pass@example.org/']) {
+    assert.equal(managedBetaRequestPermitted(invalid,true,hosts,true),false);
+  }
 });

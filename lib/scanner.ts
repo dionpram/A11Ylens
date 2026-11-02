@@ -6,7 +6,7 @@ import { validatePublicUrl } from "./safety";
 import { contrast, findAccessibleColor, readRGB, toHex } from "./contrast";
 import { recommendationForRule } from "./recommendations";
 import { ScanStepError, type ScanStep } from "./scan-errors";
-import { managedBetaRequestPermitted } from "./scan-gateway";
+import { allowAnyPublicBetaHost, managedBetaRequestPermitted } from "./scan-gateway";
 
 type AxeRule = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
 const wcagTags = (tags: string[]) => tags.filter(t => /^wcag\d/.test(t));
@@ -179,7 +179,7 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       if (requestCount > MAX_BROWSER_REQUESTS) requestLimitHit = true;
       const managed = process.env.MANAGED_BROWSER_ENABLED === "true";
       if (requestLimitHit ||
-        (managed && !managedBetaRequestPermitted(candidate, route.request().isNavigationRequest(), process.env.SCAN_BETA_ALLOWED_HOSTS)) ||
+        (managed && !managedBetaRequestPermitted(candidate, route.request().isNavigationRequest(), process.env.SCAN_BETA_ALLOWED_HOSTS, allowAnyPublicBetaHost())) ||
         (!managed && !/^https?:/i.test(candidate))) {
         await route.abort().catch(() => {});
         return;

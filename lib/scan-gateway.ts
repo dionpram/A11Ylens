@@ -80,10 +80,21 @@ export function isAllowedBetaUrl(input: string, commaSeparatedHosts?: string): b
  * Navigation (including frames and redirects) must remain on approved domains.
  * HTTPS subresources on other public sites still go through validatePublicUrl().
  */
-export function managedBetaRequestPermitted(input: string, navigation: boolean, allowedHosts: string | undefined): boolean {
+export function managedBetaRequestPermitted(input: string, navigation: boolean, allowedHosts: string | undefined, allowAnyPublicHost = false): boolean {
   let url: URL;
   try { url = new URL(input); } catch { return false; }
   if (url.protocol !== "https:" || url.username || url.password) return false;
-  if (navigation && !isAllowedBetaUrl(input, allowedHosts)) return false;
+  if (navigation && !allowAnyPublicHost && !isAllowedBetaUrl(input, allowedHosts)) return false;
   return true;
+}
+
+/** A testing-only switch. It cannot enable open-domain scanning in production.
+ * Vercel Preview protection must also remain enabled on the project.
+ */
+export function allowAnyPublicBetaHost(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.SCAN_BETA_ANY_PUBLIC_HOSTS === "true"
+    && env.VERCEL_ENV === "preview"
+    && env.VERCEL_GIT_COMMIT_REF === "remote-browser-beta"
+    && env.MANAGED_BROWSER_ENABLED === "true"
+    && env.SCANNER_SECURITY_HOLD !== "true";
 }

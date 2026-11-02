@@ -28,3 +28,9 @@ Keep PageSpeed disabled on this branch. If neither the token nor a worker is con
 
 ## Long-term replacement
 The same `scanWebsite` engine can run in an isolated self-hosted worker by leaving `MANAGED_BROWSER_ENABLED` off and configuring `SCAN_WORKER_URL` in Vercel. Use host-level egress blocking and resource quotas when running arbitrary websites.
+
+## Expanded URL testing (protected preview only)
+
+The optional `SCAN_BETA_ANY_PUBLIC_HOSTS=true` switch permits arbitrary public **HTTPS** domains on Vercel's authenticated `remote-browser-beta` Preview only. `allowAnyPublicBetaHost()` refuses to enable it on `main`, in Production, or when the security hold is active. Redirect navigation and subresources still undergo `validatePublicUrl()` DNS / private-address checks; WebSockets are blocked and the scanner retains request and rate limits.
+
+**Security boundary:** Browserless operates a remotely isolated browser (not in the Vercel container), but A11Ylens has not verified its private-network deny rules at the actual outbound socket. Application checks are not a full SSRF defense. This mode is for the authenticated owner to evaluate ordinary public sites; it is not approval for an unrestricted public product. The hardened local Docker worker remains the path for a fully isolated public scanning service. Never scan private, signed, credential-bearing or login-only URLs.

@@ -1,4 +1,4 @@
-import { authenticateWorker, isAllowedBetaUrl, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
+import { authenticateWorker, allowAnyPublicBetaHost, isAllowedBetaUrl, readLimitedJson, scanMode, workerEndpoint } from "@/lib/scan-gateway";
 import { safeScannerFailure } from "@/lib/scan-errors";
 import { consumeScanBudget, scanRateLimitPolicy } from "@/lib/scan-rate-limit";
 import { normalizeWebsiteInput } from "@/lib/url-input";
@@ -53,7 +53,10 @@ export async function POST(request: Request) {
 
   // Exact beta allowlist before counting attempts: invalid/disallowed hosts
   // should not consume a tester's scarce browser quota.
-  if (mode === "managed-browser" && !isAllowedBetaUrl(url, process.env.SCAN_BETA_ALLOWED_HOSTS)) {
+  if (mode === "managed-browser" && allowAnyPublicBetaHost() && !url.startsWith("https://")) {
+    return Response.json({error:"The expanded beta currently supports HTTPS website addresses only.",code:"HTTPS_REQUIRED"}, {status:400,headers:noStore});
+  }
+  if (mode === "managed-browser" && !allowAnyPublicBetaHost() && !isAllowedBetaUrl(url, process.env.SCAN_BETA_ALLOWED_HOSTS)) {
     return Response.json({ error: "This is a restricted test preview. Try pramadion.com, example.com, or riderguide.com. Public scanning of any URL is not enabled yet.", code: "BETA_DOMAIN_NOT_ALLOWED" }, { status: 403, headers: noStore });
   }
 
