@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { authenticateWorker, scanMode, workerEndpoint, isAllowedBetaUrl, readLimitedJson } from '../lib/scan-gateway.ts';
+import { authenticateWorker, scanMode, workerEndpoint, isAllowedBetaUrl, managedBetaRequestPermitted, readLimitedJson } from '../lib/scan-gateway.ts';
 import { browserlessEndpoint } from '../lib/browserless.ts';
 
 const token = 'a-secure-32-character-minimum-scanner-token-123';
@@ -81,4 +81,18 @@ test('managed browser connection goes to fixed Amsterdam provider, not user-supp
   assert.equal(endpoint.searchParams.get('token'), 'test-secret');
   assert.equal(endpoint.searchParams.get('timeout'), '55000');
   assert.throws(()=>browserlessEndpoint(''), /not configured/);
+});
+
+test('managed browser only permits approved HTTPS navigations and redirects', () => {
+  const hosts = 'pramadion.com,www.pramadion.com,example.com,riderguide.com,www.riderguide.com';
+  assert.equal(managedBetaRequestPermitted('https://pramadion.com/work', true, hosts), true);
+  assert.equal(managedBetaRequestPermitted('https://riderguide.com/reviews?ref=abc', true, hosts), true);
+  assert.equal(managedBetaRequestPermitted('https://example.com/', true, hosts), true);
+  assert.equal(managedBetaRequestPermitted('https://evil.example/', true, hosts), false);
+  assert.equal(managedBetaRequestPermitted('https://pramadion.com.evil.example/', true, hosts), false);
+  assert.equal(managedBetaRequestPermitted('http://example.com/', true, hosts), false);
+  assert.equal(managedBetaRequestPermitted('ws://example.com/', false, hosts), false);
+  assert.equal(managedBetaRequestPermitted('https://cdn.example.net/css', false, hosts), true);
+  assert.equal(managedBetaRequestPermitted('http://cdn.example.net/css', false, hosts), false);
+  assert.equal(managedBetaRequestPermitted('https://evil.example/', true, ''), false);
 });

@@ -6,6 +6,7 @@ import { validatePublicUrl } from "./safety";
 import { contrast, findAccessibleColor, readRGB, toHex } from "./contrast";
 import { recommendationForRule } from "./recommendations";
 import { ScanStepError, type ScanStep } from "./scan-errors";
+import { managedBetaRequestPermitted } from "./scan-gateway";
 
 type AxeRule = Awaited<ReturnType<AxeBuilder["analyze"]>>["violations"][number];
 const wcagTags = (tags: string[]) => tags.filter(t => /^wcag\d/.test(t));
@@ -161,6 +162,11 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       serviceWorkers: "block",
       acceptDownloads: false,
     });
+    if (process.env.MANAGED_BROWSER_ENABLED === "true") {
+      // Pages may open WebSockets outside ordinary context.route() interception.
+      // No scanned page needs realtime sockets for an automated accessibility report.
+      await context.routeWebSocket("**/*", ws => ws.close());
+    }
     // Cap intercepted requests to avoid unbounded work from an untrusted page.
     // This does not replace container-level CPU, RAM, network and time limits.
     let requestCount = 0;
@@ -171,7 +177,10 @@ export async function scanWebsite(inputUrl: string): Promise<ScanReport> {
       const candidate = route.request().url();
       requestCount++;
       if (requestCount > MAX_BROWSER_REQUESTS) requestLimitHit = true;
-      if (requestLimitHit || !/^https?:/i.test(candidate)) {
+      const managed = process.env.MANAGED_BROWSER_ENABLED === "true";
+      if (requestLimitHit ||
+        (managed && !managedBetaRequestPermitted(candidate, route.request().isNavigationRequest(), process.env.SCAN_BETA_ALLOWED_HOSTS)) ||
+        (!managed && !/^https?:/i.test(candidate))) {
         await route.abort().catch(() => {});
         return;
       }

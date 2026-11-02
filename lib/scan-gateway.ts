@@ -75,3 +75,15 @@ export function isAllowedBetaUrl(input: string, commaSeparatedHosts?: string): b
   return commaSeparatedHosts.split(",").map(h => h.trim().toLowerCase()).filter(Boolean)
     .some(h => h === host && /^[a-z0-9.-]+$/.test(h));
 }
+
+/** For the private managed-browser preview ONLY; never use as public egress security.
+ * Navigation (including frames and redirects) must remain on approved domains.
+ * HTTPS subresources on other public sites still go through validatePublicUrl().
+ */
+export function managedBetaRequestPermitted(input: string, navigation: boolean, allowedHosts: string | undefined): boolean {
+  let url: URL;
+  try { url = new URL(input); } catch { return false; }
+  if (url.protocol !== "https:" || url.username || url.password) return false;
+  if (navigation && !isAllowedBetaUrl(input, allowedHosts)) return false;
+  return true;
+}
