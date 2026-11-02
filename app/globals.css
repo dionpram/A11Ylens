@@ -557,3 +557,10 @@
 .stitch-diff-stage .stitch-simple-before{color:#929292;}
 .stitch-diff-stage .stitch-simple-after{color:#595959;}
 }
+
+/* Primary hero action: neutral charcoal; coral remains an accent. */
+@media screen {
+  .stitch-hero .stitch-submit { background:#1f2328; border-color:#1f2328; color:#fff; }
+  .stitch-hero .stitch-submit:hover:not(:disabled) { background:#2b3138; border-color:#2b3138; }
+  .stitch-hero .stitch-submit:focus-visible { outline:3px solid #0969da; outline-offset:3px; }
+}
