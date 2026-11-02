@@ -636,25 +636,3 @@
   .pdf-cover-site small{color:#485460!important;font-size:8.5pt!important;}
   .pdf-cover-footnote{color:#3c4955!important;margin-top:7mm!important;font-size:9pt!important;}
 }
-
-/* Compact, centered hero illustration. The scan form must remain above the fold. */
-@media screen {
-.stitch-hero-inner{display:flex;flex-direction:column;align-items:center;}
-.stitch-hero-illustration{width:min(100%,320px);height:auto;margin:0 auto 5px;line-height:0;order:0;}
-.stitch-hero-illustration img{width:100%;height:auto;display:block;object-fit:contain;}
-.stitch-hero .stitch-terminal-label{margin-bottom:12px;}
-.stitch-hero h1{font-size:clamp(36px,5.3vw,73px)!important;line-height:1.02!important;margin-bottom:16px!important;}
-.stitch-hero .hero-subtitle{margin-bottom:18px!important;}
-.stitch-hero{padding-top:15px!important;}
-}
-@media screen and (max-width:650px){
-.stitch-hero-illustration{width:min(60vw,200px);margin-bottom:6px;}
-.stitch-hero .stitch-terminal-label{font-size:9px!important;margin-bottom:8px;}
-.stitch-hero h1{font-size:clamp(33px,8vw,49px)!important;margin-bottom:11px!important;}
-.stitch-hero .hero-subtitle{font-size:13px!important;margin-bottom:13px!important;}
-.stitch-hero{padding-top:8px!important;}
-}
-@media screen and (max-height:760px) and (min-width:651px){
-.stitch-hero-illustration{width:225px;}
-.stitch-hero h1{font-size:clamp(37px,4.7vw,61px)!important;}
-}
