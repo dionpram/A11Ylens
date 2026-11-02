@@ -53,6 +53,26 @@ if (process.env.SCANNER_SECURITY_HOLD === "true") {
       || !Array.isArray(payload.failures) || payload.environment?.engine !== "axe-core")
       throw new Error("INVALID_REPORT");
     console.log("[scan-api-remote] PASS: real axe-core report returned for example.com.");
+    // In the owner's private Preview, prove a domain outside the old allowlist
+    // also works. Never enable or run this extra test in Production.
+    if (process.env.SCAN_BETA_ANY_PUBLIC_HOSTS === "true" && process.env.VERCEL_ENV === "preview") {
+      stage = "VERIFY_EXPANDED_HOST_SCOPE";
+      const status = await (await fetch(base + "/api/health", {signal:AbortSignal.timeout(3000)})).json();
+      if (status.urlScope !== "public-https-preview") throw new Error("PREVIEW_HOST_SCOPE_DISABLED");
+      stage = "SCAN_ADDITIONAL_PUBLIC_DOMAIN";
+      const other = await fetch(base + "/api/scan", {
+        method:"POST", headers:{"Content-Type":"application/json",Accept:"application/json"},
+        body:JSON.stringify({url:"https://example.org/"}),
+        signal:AbortSignal.timeout(58000),
+      });
+      const result = await other.json();
+      if (!other.ok || !Array.isArray(result?.passes) || !Array.isArray(result?.failures)
+        || result?.environment?.engine !== "axe-core") {
+        const code = typeof result?.code === "string" ? result.code : "HTTP_" + other.status;
+        throw new Error(code);
+      }
+      console.log("[scan-api-remote] PASS: expanded private beta scanned example.org outside the previous allowlist.");
+    }
   } catch (error) {
     const code = error instanceof Error && /^[A-Z0-9_]+$/.test(error.message) ? error.message : "FAILED";
     throw new Error("[scan-api-remote] FAILED at " + stage + " (" + code + ").");
