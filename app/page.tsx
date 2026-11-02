@@ -37,11 +37,12 @@ export default function Home() {
   const [report, setReport] = useState<ScanReport | null>(null);
   const [pending, setPending] = useState(false);
   const [scanAvailable, setScanAvailable] = useState<boolean | null>(null);
+  const [scanEngine, setScanEngine] = useState<"axe-core" | "lighthouse" | "unavailable">("unavailable");
   useEffect(() => {
     let mounted = true;
     fetch("/api/health", { cache: "no-store" })
       .then(async response => response.ok ? response.json() : null)
-      .then(state => { if (mounted) setScanAvailable(state?.scanAvailable === true); })
+      .then(state => { if (mounted) { setScanAvailable(state?.scanAvailable === true); setScanEngine(state?.scanEngine === "lighthouse" ? "lighthouse" : state?.scanEngine === "axe-core" ? "axe-core" : "unavailable"); } })
       .catch(() => { if (mounted) setScanAvailable(false); });
     return () => { mounted = false; };
   }, []);
@@ -106,14 +107,14 @@ export default function Home() {
     {report ? <main id="main-content"><Report report={report} onReset={reset}/></main> : <>
       <main id="main-content" className="screen-only">
         <section className="hero stitch-hero"><div className="container stitch-hero-inner">
-          <div className="stitch-terminal-label"><span aria-hidden="true" className="stitch-prompt">$</span><span>axe-core + Chromium</span><span className="stitch-terminal-separator">/</span><span>one-page accessibility audit</span></div>
+          <div className="stitch-terminal-label"><span aria-hidden="true" className="stitch-prompt">$</span><span>{scanEngine === "lighthouse" ? "Lighthouse via Google" : "axe-core + Chromium"}</span><span className="stitch-terminal-separator">/</span><span>one-page accessibility audit</span></div>
           <h1>Understand what’s<br/>working.<br/><em>Fix what isn’t.</em></h1>
           <p className="hero-subtitle">Automated accessibility checks with clear findings, practical next steps, and visual contrast suggestions where supported.</p>
           <form className="url-form" onSubmit={scan}>
             <label htmlFor="website-url" className="sr-only">Website URL to audit</label>
             <div className="stitch-url-box">
               <div className="stitch-url-field"><span className="stitch-url-icon"><Link2 size={19}/></span><div className="stitch-field-content"><span className="stitch-field-label">TARGET DOMAIN</span><input id="website-url" ref={inputRef} inputMode="url" autoComplete="url" type="text" spellCheck={false} placeholder="https://example.com" value={url} onChange={e=>setUrl(e.target.value)} disabled={pending || scanAvailable === false} required/></div></div>
-              <div className="stitch-standard"><span className="stitch-field-label">AUDIT METHOD</span><span><span className="stitch-status-dot"/> axe-core <span className="stitch-standard-muted">/ single page</span></span></div>
+              <div className="stitch-standard"><span className="stitch-field-label">AUDIT METHOD</span><span><span className="stitch-status-dot"/> {scanEngine === "lighthouse" ? "Lighthouse" : "axe-core"} <span className="stitch-standard-muted">/ single page</span></span></div>
               <button className="button button-coral stitch-submit" type="submit" disabled={pending || scanAvailable !== true}>{pending ? <><Loader2 className="spinning" size={16}/> Scanning</> : scanAvailable === false ? <>Paused <ShieldCheck size={16}/></> : scanAvailable === null ? <>Checking…</> : <>Audit page <ArrowRight size={16}/></>}</button>
             </div>
           </form>
